@@ -4,10 +4,14 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+
+import java.io.File;
 
 public class CacheService extends IntentService {
     public static final String ACTION_FETCH = "ACTION_FETCH";
     public static final String ACTION_FETCH_RESULT = "ACTION_FETCH_RESULT";
+    public static final String ACTION_CALC_SPACE_USED = "ACTION_CALC_SPACE_USED";
     private static final int DEFAULT_LIMIT = 1<<30;
     private static final String TAG = "CacheService";
 
@@ -19,9 +23,33 @@ public class CacheService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent.getAction() == ACTION_FETCH) {
+        final String action = intent.getAction();
+        if (action.equals(ACTION_FETCH)) {
             fetch(intent);
+        } else if (action.equals(ACTION_CALC_SPACE_USED)) {
+            calcSpaceUsed();
         }
+    }
+
+    private void calcSpaceUsed() {
+        File cacheDir = getCacheDir();
+        long size = calcSizeIn(cacheDir);
+        Log.d(TAG, "space used in cache:" + size);
+    }
+
+    private long calcSizeIn(File file) {
+        if (file == null)
+            return 0;
+
+        long size = 0;
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            for (File f : children) {
+                size += calcSizeIn(f);
+            }
+            return size;
+        }
+        return file.length();
     }
 
     private void fetch(final Intent intent) {

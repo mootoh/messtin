@@ -18,7 +18,6 @@ static NSString *kCellID = @"bookCellId";
 @interface NMBookshelfViewController ()
 @property NSIndexPath *prevIndexPath;
 @property UIPopoverController *popoverForBook;
-- (void) setupParse;
 @end
 
 @implementation NMBookshelfViewController
@@ -29,7 +28,6 @@ static NSString *kCellID = @"bookCellId";
 
     self.title = @"Bookshelf";
     self.books = [NSMutableArray array];
-    [self setupParse];
 
     [self.collectionView addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressOnCell:)]];
     [self fetchBooks];
@@ -68,21 +66,6 @@ static NSString *kCellID = @"bookCellId";
         }
         [self.collectionView reloadData];
     }];
-}
-
-- (void) setupParse {
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"parse_secret" ofType:@"plist"];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    if (![fileManager fileExistsAtPath:path]) {
-        NSLog(@"no such file: %@", path);
-        return;
-    }
-    
-    NSDictionary *secret = [NSDictionary dictionaryWithContentsOfFile:path];
-
-    [Parse setApplicationId:secret[@"APP_ID"]
-                  clientKey:secret[@"CLIENT_KEY"]];
 }
 
 - (void) retrieveCoverImage:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback

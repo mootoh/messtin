@@ -10,29 +10,29 @@
 	<string>messtin-iOS</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>D52492E4-6565-477D-9115-2E2950E87F14</key>
+		<key>9FD7DEF5CDD1DB52F36CF0F50EAB5F3D2506CE4D</key>
 		<string>ssh://github.com/mootoh/messtin.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>iOS/messtin-iOS.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>D52492E4-6565-477D-9115-2E2950E87F14</key>
+		<key>9FD7DEF5CDD1DB52F36CF0F50EAB5F3D2506CE4D</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>ssh://github.com/mootoh/messtin.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>D52492E4-6565-477D-9115-2E2950E87F14</string>
+	<string>9FD7DEF5CDD1DB52F36CF0F50EAB5F3D2506CE4D</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>D52492E4-6565-477D-9115-2E2950E87F14</string>
+			<string>9FD7DEF5CDD1DB52F36CF0F50EAB5F3D2506CE4D</string>
 			<key>IDESourceControlWCCName</key>
 			<string>messtin</string>
 		</dict>

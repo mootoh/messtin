@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-var secret = JSON.parse(fs.readFileSync('./parse_secret.json'))
+var secret = JSON.parse(fs.readFileSync('./secret.json'))
 
 function replace_secrets(filename) {
     var content = fs.readFileSync(filename).toString();
@@ -11,12 +11,12 @@ function replace_secrets(filename) {
 }
 
 function replace_iOS() {
-    replace_secrets('../iOS/messtin-iOS/parse_secret.plist');
+    replace_secrets('../iOS/messtin-iOS/secret.plist');
 }
 
 // for Android
 function replace_android() {
-    replace_secrets('../android/app/src/main/res/values/parse_secret.xml');
+    replace_secrets('../android/app/src/main/res/values/secret.xml');
 }
 
 replace_iOS();

@@ -7,12 +7,13 @@
 //
 
 #import "NMAppDelegate.h"
+#import <Parse/Parse.h>
 
 @implementation NMAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"parse_secret" ofType:@"plist"];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"secret" ofType:@"plist"];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
     if (![fileManager fileExistsAtPath:path]) {
@@ -22,6 +23,8 @@
     
     NSDictionary *secret = [NSDictionary dictionaryWithContentsOfFile:path];
     _storageServerURLBase = secret[@"STORAGE_SERVER_URL"];
+
+    [self setupParse:secret];
 
     return YES;
 }
@@ -51,6 +54,12 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+
+- (void) setupParse:(NSDictionary *)secret {
+    [Parse setApplicationId:secret[@"APP_ID"]
+                  clientKey:secret[@"CLIENT_KEY"]];
 }
 
 @end

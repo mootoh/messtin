@@ -225,6 +225,10 @@ public class BooklistActivity extends Activity {
             items.clear();
             adapter.notifyDataSetChanged();
             fetchBooksFromParseRemotely();
+
+            // debug
+            calcSpaceUsed();
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -244,5 +248,11 @@ public class BooklistActivity extends Activity {
                     }
                 })
                 .show();
+    }
+
+    public void calcSpaceUsed() {
+        Intent intent = new Intent(this, CacheService.class);
+        intent.setAction(CacheService.ACTION_CALC_SPACE_USED);
+        startService(intent);
     }
 }
