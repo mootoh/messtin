@@ -55,9 +55,8 @@ NSString *kCellID = @"bookCellId";
     path = [path stringByAppendingPathComponent:book[@"id"]];
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
 
-    BOOL isDir;
     NSFileManager *fileManager= [NSFileManager defaultManager];
-    if(![fileManager fileExistsAtPath:path isDirectory:&isDir])
+    if(![fileManager fileExistsAtPath:path])
         if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL])
             NSLog(@"Error: Create folder failed %@", path);
 
