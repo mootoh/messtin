@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>3EA474AF-6815-4BB2-ABFF-3967F463C6A6</string>
+	<key>IDESourceControlProjectName</key>
+	<string>messtin-iOS</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>766AD624-94D7-49C0-99D6-50A62A61773D</key>
+		<string>ssh://github.com/mootoh/messtin.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>messtin-iOS/messtin-iOS.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>766AD624-94D7-49C0-99D6-50A62A61773D</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/mootoh/messtin.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>766AD624-94D7-49C0-99D6-50A62A61773D</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>766AD624-94D7-49C0-99D6-50A62A61773D</string>
+			<key>IDESourceControlWCCName</key>
+			<string>messtin</string>
+		</dict>
+	</array>
+</dict>
+</plist>
