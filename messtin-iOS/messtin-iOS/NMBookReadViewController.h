@@ -10,7 +10,7 @@
 
 @class NMBook;
 
-@interface NMBookReadViewController : UIViewController
+@interface NMBookReadViewController : UIViewController <UIScrollViewDelegate>
 @property NMBook *book;
 @property NSUInteger currentPage;
 

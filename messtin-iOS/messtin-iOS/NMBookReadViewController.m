@@ -35,7 +35,6 @@
     [self downloadPage:self.currentPage-1 show:NO];
     [self downloadPage:self.currentPage+1 show:NO];
 
-
     UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tgr];
 }
@@ -94,6 +93,13 @@
 {
     [self downloadPage:--self.currentPage show:YES];
     [self downloadPage:self.currentPage-1 show:NO];
+}
+
+#pragma mark UIScrollViewDelegate
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+    return self.pageImageView;
 }
 
 @end
