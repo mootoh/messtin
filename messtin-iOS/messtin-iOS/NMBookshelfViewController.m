@@ -49,17 +49,39 @@ NSString *kCellID = @"bookCellId";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath;
 {
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
+
     NSDictionary *book = [self.books objectAtIndex:indexPath.row];
+    NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    path = [path stringByAppendingPathComponent:book[@"id"]];
+    NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
 
-    // TODO: Download the cover and store it to local storage
-//    [AFMGR GET:[API_SERVER stringByAppendingFormat:@"/book/@/@", book[@"name"], book[@"cover_img"]] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-//        
-//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//        NSLog(@"Error: %@", error);
-//    }];
+    BOOL isDir;
+    NSFileManager *fileManager= [NSFileManager defaultManager];
+    if(![fileManager fileExistsAtPath:path isDirectory:&isDir])
+        if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL])
+            NSLog(@"Error: Create folder failed %@", path);
 
-    UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-    iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[API_SERVER stringByAppendingFormat:@"/book/%@/%@", book[@"id"], book[@"cover_img"]]]]];
+    if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:book[@"cover_img"]]]) {
+        UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
+        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[documentsDirectoryPath URLByAppendingPathComponent:book[@"cover_img"]]]];
+        return cell;
+    }
+
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+
+    NSURL *url = [NSURL URLWithString:[API_SERVER stringByAppendingFormat:@"/book/%@/%@", book[@"id"], book[@"cover_img"]]];
+    NSURLRequest *req = [NSURLRequest requestWithURL:url];
+
+    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:req progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
+        NSURL *ret = [documentsDirectoryPath URLByAppendingPathComponent:[response suggestedFilename]];
+        return ret;
+    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
+        UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
+        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
+
+    }];
+    [downloadTask resume];
 
     return cell;
 }
