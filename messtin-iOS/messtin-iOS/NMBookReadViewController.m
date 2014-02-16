@@ -28,23 +28,23 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-/*
-    [AFMGR GET:[API_SERVER stringByAppendingFormat:@"/book/%@/%d.jpg", self.book.dict[@"id"], 0] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-    }];
-*/
 
     self.title = self.book.dict[@"name"];
-    [self downloadPage:self.currentPage];
+
+    [self downloadPage:self.currentPage show:YES];
+    [self downloadPage:self.currentPage-1 show:NO];
+    [self downloadPage:self.currentPage+1 show:NO];
+
 
     UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tgr];
 }
 
-- (void)downloadPage:(NSUInteger)page
+- (void)downloadPage:(NSInteger)page show:(BOOL)toShow
 {
+    if (page < 0 || page >= [self.book.dict[@"pages"] integerValue])
+        return;
+
     NSFileManager *fileManager= [NSFileManager defaultManager];
 
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
@@ -52,7 +52,8 @@
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.jpg", page]];
 
     if ([fileManager fileExistsAtPath:path]) {
-        self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]]];
+        if (toShow)
+            self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]]];
         return;
     }
     
@@ -66,7 +67,9 @@
         NSURL *ret = [NSURL fileURLWithPath:path];
         return ret;
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
-        self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
+        if (toShow) {
+            self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
+        }
     }];
     [downloadTask resume];
 }
@@ -83,15 +86,14 @@
 
 - (void)nextPage
 {
-    [self downloadPage:++self.currentPage];
+    [self downloadPage:++self.currentPage show:YES];
+    [self downloadPage:self.currentPage+1 show:NO];
 }
 
 - (void)prevPage
 {
-    if (self.currentPage == 0) {
-        return;
-    }
-    [self downloadPage:--self.currentPage];
+    [self downloadPage:--self.currentPage show:YES];
+    [self downloadPage:self.currentPage-1 show:NO];
 }
 
 @end
