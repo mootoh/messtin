@@ -36,6 +36,8 @@
     }];
 */
 
+    self.title = self.book.dict[@"name"];
+
     self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[API_SERVER stringByAppendingFormat:@"/book/%@/%d.jpg", self.book.dict[@"id"], self.currentPage]]]];
 
     UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
