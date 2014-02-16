@@ -31,6 +31,7 @@ NSString *kCellID = @"bookCellId";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.title = @"Bookshelf";
 
     [AFMGR GET:[API_SERVER stringByAppendingString:@"/books.json"] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         self.books = [NSMutableArray arrayWithArray:responseObject];
