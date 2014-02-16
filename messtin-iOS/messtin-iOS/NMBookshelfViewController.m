@@ -59,8 +59,7 @@ NSString *kCellID = @"bookCellId";
 
     UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
     iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[API_SERVER stringByAppendingFormat:@"/book/%@/%@", book[@"id"], book[@"cover_img"]]]]];
-    cell.frame = CGRectMake(0, 0, iv.image.size.width, iv.image.size.height);
-    
+
     return cell;
 }
 
@@ -72,12 +71,6 @@ NSString *kCellID = @"bookCellId";
         NMBook *book = [[NMBook alloc] initWithDictionary:self.books[indexPath.row]];
         vc.book = book;
     }
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    NSDictionary *book = [self.books objectAtIndex:indexPath.row];
-    
 }
 
 @end

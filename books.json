@@ -4,5 +4,11 @@
     "name": "間取り",
     "cover_img": "cover.jpg",
     "pages": 124
+  },
+  {
+    "id": "WIRED-2013-vol10",
+    "name": "WIRED vol.10 2013",
+    "cover_img": "cover.jpg",
+    "pages": 160
   }
 ]
