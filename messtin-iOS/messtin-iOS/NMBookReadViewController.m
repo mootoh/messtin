@@ -20,7 +20,6 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.currentPage = 0;
     }
     return self;
 }
@@ -31,12 +30,19 @@
 
     self.title = self.book.dict[@"name"];
 
+    self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.dict[@"id"]]];
+
     [self downloadPage:self.currentPage show:YES];
     [self downloadPage:self.currentPage-1 show:NO];
     [self downloadPage:self.currentPage+1 show:NO];
 
     UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tgr];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [self saveCurrentPage];
 }
 
 - (void)downloadPage:(NSInteger)page show:(BOOL)toShow
@@ -93,6 +99,12 @@
 {
     [self downloadPage:--self.currentPage show:YES];
     [self downloadPage:self.currentPage-1 show:NO];
+}
+
+- (void)saveCurrentPage
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.dict[@"id"]]];
 }
 
 #pragma mark UIScrollViewDelegate
