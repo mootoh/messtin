@@ -38,11 +38,26 @@
 
     UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tgr];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(applicationWillResign)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:NULL];
+}
+
+- (void)applicationWillResign
+{
+    [self saveCurrentPage];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [self saveCurrentPage];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
 }
 
 - (void)downloadPage:(NSInteger)page show:(BOOL)toShow
