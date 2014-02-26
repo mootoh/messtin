@@ -37,7 +37,7 @@
     [self downloadPage:self.currentPage+1 show:NO];
 
     UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-    [self.view addGestureRecognizer:tgr];
+    [self.pageImageView addGestureRecognizer:tgr];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResign)
@@ -72,8 +72,11 @@
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.jpg", page]];
 
     if ([fileManager fileExistsAtPath:path]) {
-        if (toShow)
+        if (toShow) {
             self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]]];
+            self.title = [self.book.dict[@"name"] stringByAppendingFormat:@" %d/%d", page, [self.book.dict[@"pages"] intValue]];
+        }
+
         return;
     }
     
@@ -89,6 +92,7 @@
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (toShow) {
             self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
+            self.title = [self.book.dict[@"name"] stringByAppendingFormat:@" %d/%d", page, [self.book.dict[@"pages"] intValue]];
         }
     }];
     [downloadTask resume];
@@ -118,7 +122,6 @@
 
 - (void)saveCurrentPage
 {
-    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.dict[@"id"]]];
 }
 
@@ -128,5 +131,27 @@
 {
     return self.pageImageView;
 }
+
+- (IBAction)gotoPage:(id)sender {
+    UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"Goto" message:[NSString stringWithFormat:@"page (%d - %d)", 1, [self.book.dict[@"pages"] intValue]] delegate:self cancelButtonTitle:@"Jump" otherButtonTitles:nil];
+    av.alertViewStyle = UIAlertViewStylePlainTextInput;
+    UITextField *tf = [av textFieldAtIndex:0];
+    tf.keyboardType = UIKeyboardTypeNumberPad;
+    [av show];
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    UITextField *tf = [alertView textFieldAtIndex:0];
+    NSLog(@"yay %@", tf.text);
+    // check page range
+    NSInteger pg = [tf.text integerValue];
+    if (pg < 0 || pg >= [self.book.dict[@"pages"] integerValue]) {
+        NSLog(@"out of range");
+        return;
+    }
+    self.currentPage = pg;
+    [self downloadPage:pg show:YES];
+}
+
 
 @end

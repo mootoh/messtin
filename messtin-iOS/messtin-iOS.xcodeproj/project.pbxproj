@@ -38,7 +38,7 @@
 
 /* Begin PBXFileReference section */
 		052569887D9945CEBB334D13 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		92A9C4BC18AF4913005C872E /* messtin-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "messtin-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92A9C4BC18AF4913005C872E /* Messtin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messtin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92A9C4BF18AF4913005C872E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		92A9C4C118AF4913005C872E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		92A9C4C318AF4913005C872E /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -103,7 +103,7 @@
 		92A9C4BD18AF4913005C872E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				92A9C4BC18AF4913005C872E /* messtin-iOS.app */,
+				92A9C4BC18AF4913005C872E /* Messtin.app */,
 				92A9C4DD18AF4913005C872E /* messtin-iOSTests.xctest */,
 			);
 			name = Products;
@@ -187,7 +187,7 @@
 			);
 			name = Messtin;
 			productName = "messtin-iOS";
-			productReference = 92A9C4BC18AF4913005C872E /* messtin-iOS.app */;
+			productReference = 92A9C4BC18AF4913005C872E /* Messtin.app */;
 			productType = "com.apple.product-type.application";
 		};
 		92A9C4DC18AF4913005C872E /* messtin-iOSTests */ = {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="6wG-i4-XoN">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13C64" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="6wG-i4-XoN">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
     </dependencies>
@@ -77,11 +77,11 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" minimumZoomScale="0.5" maximumZoomScale="6" translatesAutoresizingMaskIntoConstraints="NO" id="U8V-ef-Xnr">
-                                <rect key="frame" x="0.0" y="65" width="768" height="959"/>
+                                <rect key="frame" x="0.0" y="64" width="768" height="911"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KFg-jQ-5ln">
-                                        <rect key="frame" x="0.0" y="-10" width="768" height="1034"/>
+                                    <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KFg-jQ-5ln">
+                                        <rect key="frame" x="0.0" y="0.0" width="768" height="911"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </imageView>
                                 </subviews>
@@ -89,17 +89,36 @@
                                     <outlet property="delegate" destination="WAG-A8-4aW" id="7qY-hy-5FI"/>
                                 </connections>
                             </scrollView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bll-Pa-l8X">
+                                <rect key="frame" x="0.0" y="980" width="768" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <items>
+                                    <barButtonItem title="Goto..." id="UoR-GH-3tg">
+                                        <connections>
+                                            <action selector="gotoPage:" destination="WAG-A8-4aW" id="bdI-o6-opl"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Tile" id="ODo-jW-CYt"/>
+                                    <barButtonItem title="Bookmark" id="Ds2-ZF-Rpa"/>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" id="PSa-fl-IWz"/>
+                    <navigationItem key="navigationItem" id="PSa-fl-IWz">
+                        <barButtonItem key="rightBarButtonItem" title="Go" id="iW3-BU-TJa">
+                            <connections>
+                                <action selector="gotoPage:" destination="WAG-A8-4aW" id="wyR-GG-6Ii"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="pageImageView" destination="KFg-jQ-5ln" id="wCZ-E5-lWA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PMk-Ou-e9J" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1348" y="104"/>
+            <point key="canvasLocation" x="1292" y="71"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
