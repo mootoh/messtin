@@ -1,94 +1,94 @@
 //
-//  NMBookshelfViewController.m
+//  NMBookThumbnailViewController.m
 //  messtin-iOS
 //
-//  Created by Motohiro Takayama on 2/15/14.
+//  Created by Motohiro Takayama on 3/1/14.
 //  Copyright (c) 2014 Motohiro Takayama. All rights reserved.
 //
 
-#import "NMBookshelfViewController.h"
 #import "AFNetworking/AFNetworking.h"
+#import "NMBookThumbnailViewController.h"
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
 
-static NSString *kCellID = @"bookCellId";
-static NSString *kCoverImage = @"001.jpg";
+static NSString *kCellID = @"bookThumbnailCellId";
 
-@interface NMBookshelfViewController ()
-
-@end
-
-@implementation NMBookshelfViewController
+@implementation NMBookThumbnailViewController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Bookshelf";
-    self.books = [NSMutableArray array];
+//    [self downloadThumbnails];
+}
 
-    [AFMGR GET:[API_SERVER stringByAppendingString:@"/books.json"] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSArray *books = (NSArray *)responseObject;
-        for (NSDictionary *info in books) {
-            NMBook *book = [[NMBook alloc] initWithDictionary:info];
-            [self.books addObject:book];
-        }
-        [self.collectionView reloadData];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-    }];
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
 
 - (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section;
 {
-    return self.books.count;
+    return self.book.pages;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath;
 {
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
-
-    NMBook *book = [self.books objectAtIndex:indexPath.row];
+    
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:book.identifier];
+    path = [path stringByAppendingPathComponent:self.book.identifier];
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
-
+    
     NSFileManager *fileManager= [NSFileManager defaultManager];
     if(![fileManager fileExistsAtPath:path])
         if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL])
             NSLog(@"Error: Create folder failed %@", path);
+    
+    NSString *fileName = [NSString stringWithFormat:@"tm_%03d.jpg", indexPath.row+1];
 
-    if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:kCoverImage]]) {
+    if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:fileName]]) {
         UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[documentsDirectoryPath URLByAppendingPathComponent:kCoverImage]]];
+        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[documentsDirectoryPath URLByAppendingPathComponent:fileName]]];
         return cell;
     }
-
+    
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-
-    NSURL *coverURL = [book.baseURL URLByAppendingPathComponent:kCoverImage];
-    NSURLRequest *req = [NSURLRequest requestWithURL:coverURL];
-
+    
+    NSURL *url = [self.book.baseURL URLByAppendingPathComponent:[@"tm" stringByAppendingPathComponent:fileName]];
+    NSURLRequest *req = [NSURLRequest requestWithURL:url];
+    
     NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:req progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
         NSURL *ret = [documentsDirectoryPath URLByAppendingPathComponent:[response suggestedFilename]];
         return ret;
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
+        NSLog(@"error = %@", error);
         UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
         iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
-
+        
     }];
     [downloadTask resume];
-
+    
     return cell;
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    if ([segue.identifier isEqualToString:@"shelfToRead"]) {
+    if ([segue.identifier isEqualToString:@"backToBookReadView"]) {
         NSIndexPath *indexPath = [[self.collectionView indexPathsForSelectedItems] firstObject];
         NMBookReadViewController *vc = (NMBookReadViewController *)segue.destinationViewController;
-        vc.book = self.books[indexPath.row];
+        vc.currentPage = indexPath.row;
+        [vc downloadPage:vc.currentPage show:YES];
+//        [self.navigationController popViewControllerAnimated:YES];
     }
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    NMBookReadViewController *vc = (NMBookReadViewController *)[self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
+    vc.currentPage = indexPath.row;
+    [vc downloadPage:vc.currentPage show:YES];
+    [self.navigationController popViewControllerAnimated:YES];
+}
 @end

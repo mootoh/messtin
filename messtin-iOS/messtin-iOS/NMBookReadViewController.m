@@ -8,6 +8,7 @@
 
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
+#import "NMBookThumbnailViewController.h"
 #import "AFNetworking/AFNetworking.h"
 
 @interface NMBookReadViewController ()
@@ -28,9 +29,9 @@
 {
     [super viewDidLoad];
 
-    self.title = self.book.dict[@"name"];
+    self.title = self.book.title;
 
-    self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.dict[@"id"]]];
+    self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.identifier]];
 
     [self downloadPage:self.currentPage show:YES];
     [self downloadPage:self.currentPage-1 show:NO];
@@ -62,19 +63,19 @@
 
 - (void)downloadPage:(NSInteger)page show:(BOOL)toShow
 {
-    if (page < 0 || page >= [self.book.dict[@"pages"] integerValue])
+    if (page < 0 || page >= self.book.pages)
         return;
 
     NSFileManager *fileManager= [NSFileManager defaultManager];
 
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:self.book.dict[@"id"]];
-    path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.jpg", page]];
+    path = [path stringByAppendingPathComponent:self.book.identifier];
+    path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d.jpg", page]];
 
     if ([fileManager fileExistsAtPath:path]) {
         if (toShow) {
             self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]]];
-            self.title = [self.book.dict[@"name"] stringByAppendingFormat:@" %d/%d", page, [self.book.dict[@"pages"] intValue]];
+            self.title = [self.book.title stringByAppendingFormat:@" %d/%d", page, self.book.pages];
         }
 
         return;
@@ -83,7 +84,7 @@
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
     
-    NSURL *url = [NSURL URLWithString:[API_SERVER stringByAppendingFormat:@"/book/%@/%d.jpg", self.book.dict[@"id"], page]];
+    NSURL *url = [NSURL URLWithString:[API_SERVER stringByAppendingFormat:@"/book/%@/%03d.jpg", self.book.identifier, page]];
     NSURLRequest *req = [NSURLRequest requestWithURL:url];
     
     NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:req progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
@@ -92,7 +93,7 @@
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (toShow) {
             self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
-            self.title = [self.book.dict[@"name"] stringByAppendingFormat:@" %d/%d", page, [self.book.dict[@"pages"] intValue]];
+            self.title = [self.book.title stringByAppendingFormat:@" %d/%d", page, self.book.pages];
         }
     }];
     [downloadTask resume];
@@ -122,7 +123,7 @@
 
 - (void)saveCurrentPage
 {
-    [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.dict[@"id"]]];
+    [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.identifier]];
 }
 
 #pragma mark UIScrollViewDelegate
@@ -133,7 +134,7 @@
 }
 
 - (IBAction)gotoPage:(id)sender {
-    UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"Goto" message:[NSString stringWithFormat:@"page (%d - %d)", 1, [self.book.dict[@"pages"] intValue]] delegate:self cancelButtonTitle:@"Jump" otherButtonTitles:nil];
+    UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"Goto" message:[NSString stringWithFormat:@"page (%d - %d)", 1, self.book.pages] delegate:self cancelButtonTitle:@"Jump" otherButtonTitles:nil];
     av.alertViewStyle = UIAlertViewStylePlainTextInput;
     UITextField *tf = [av textFieldAtIndex:0];
     tf.keyboardType = UIKeyboardTypeNumberPad;
@@ -145,12 +146,20 @@
     NSLog(@"yay %@", tf.text);
     // check page range
     NSInteger pg = [tf.text integerValue];
-    if (pg < 0 || pg >= [self.book.dict[@"pages"] integerValue]) {
+    if (pg < 0 || pg >= self.book.pages) {
         NSLog(@"out of range");
         return;
     }
     self.currentPage = pg;
     [self downloadPage:pg show:YES];
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"toThumbnailBookPages"]) {
+        NMBookThumbnailViewController *vc = (NMBookThumbnailViewController *)segue.destinationViewController;
+        vc.book = self.book;
+    }
 }
 
 

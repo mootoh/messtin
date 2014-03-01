@@ -14,7 +14,10 @@
 {
     self = [super init];
     if (self) {
-        self.dict = dict;
+        self.identifier = dict[@"id"];
+        self.title = dict[@"title"];
+        self.baseURL = [NSURL URLWithString:dict[@"base_url"]];
+        self.pages = [dict[@"pages"] integerValue];
     }
     return self;
 }

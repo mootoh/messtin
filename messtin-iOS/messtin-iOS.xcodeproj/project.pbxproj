@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		92A2768518C198B400167B4C /* NMBookThumbnailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92A2768418C198B400167B4C /* NMBookThumbnailViewController.m */; };
 		92A9C4C018AF4913005C872E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A9C4BF18AF4913005C872E /* Foundation.framework */; };
 		92A9C4C218AF4913005C872E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A9C4C118AF4913005C872E /* CoreGraphics.framework */; };
 		92A9C4C418AF4913005C872E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A9C4C318AF4913005C872E /* UIKit.framework */; };
@@ -38,6 +39,8 @@
 
 /* Begin PBXFileReference section */
 		052569887D9945CEBB334D13 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		92A2768318C198B400167B4C /* NMBookThumbnailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMBookThumbnailViewController.h; sourceTree = "<group>"; };
+		92A2768418C198B400167B4C /* NMBookThumbnailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMBookThumbnailViewController.m; sourceTree = "<group>"; };
 		92A9C4BC18AF4913005C872E /* Messtin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messtin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92A9C4BF18AF4913005C872E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		92A9C4C118AF4913005C872E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -124,15 +127,17 @@
 		92A9C4C518AF4913005C872E /* messtin-iOS */ = {
 			isa = PBXGroup;
 			children = (
+				92A9C4D118AF4913005C872E /* Main.storyboard */,
 				92A9C4CE18AF4913005C872E /* NMAppDelegate.h */,
 				92A9C4CF18AF4913005C872E /* NMAppDelegate.m */,
-				92A9C4D118AF4913005C872E /* Main.storyboard */,
 				92A9C4F618AF704D005C872E /* NMBookshelfViewController.h */,
 				92A9C4F718AF704D005C872E /* NMBookshelfViewController.m */,
 				92A9C4F918B04103005C872E /* NMBookReadViewController.h */,
 				92A9C4FA18B04103005C872E /* NMBookReadViewController.m */,
 				92A9C4FC18B057FA005C872E /* NMBook.h */,
 				92A9C4FD18B057FA005C872E /* NMBook.m */,
+				92A2768318C198B400167B4C /* NMBookThumbnailViewController.h */,
+				92A2768418C198B400167B4C /* NMBookThumbnailViewController.m */,
 				92A9C4D718AF4913005C872E /* Images.xcassets */,
 				92A9C4C618AF4913005C872E /* Supporting Files */,
 			);
@@ -218,6 +223,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Motohiro Takayama";
 				TargetAttributes = {
+					92A9C4BB18AF4913005C872E = {
+						DevelopmentTeam = 6CT34296KB;
+					};
 					92A9C4DC18AF4913005C872E = {
 						TestTargetID = 92A9C4BB18AF4913005C872E;
 					};
@@ -302,6 +310,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				92A9C4FB18B04103005C872E /* NMBookReadViewController.m in Sources */,
+				92A2768518C198B400167B4C /* NMBookThumbnailViewController.m in Sources */,
 				92A9C4F818AF704D005C872E /* NMBookshelfViewController.m in Sources */,
 				92A9C4FE18B057FA005C872E /* NMBook.m in Sources */,
 				92A9C4CC18AF4913005C872E /* main.m in Sources */,
@@ -435,10 +444,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "messtin-iOS/messtin-iOS-Prefix.pch";
 				INFOPLIST_FILE = "messtin-iOS/messtin-iOS-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -449,10 +461,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "messtin-iOS/messtin-iOS-Prefix.pch";
 				INFOPLIST_FILE = "messtin-iOS/messtin-iOS-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

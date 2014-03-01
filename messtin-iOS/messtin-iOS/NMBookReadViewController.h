@@ -16,4 +16,6 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *pageImageView;
 
+- (void)downloadPage:(NSInteger)page show:(BOOL)toShow;
+
 @end

@@ -9,6 +9,12 @@
 #import <Foundation/Foundation.h>
 
 @interface NMBook : NSObject
-@property NSDictionary *dict;
+
+@property NSString *identifier;
+@property NSString *title;
+@property NSURL *baseURL;
+@property NSInteger pages;
+
 - (id)initWithDictionary:(NSDictionary *)dict;
+
 @end
