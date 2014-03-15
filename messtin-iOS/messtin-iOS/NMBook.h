@@ -10,10 +10,12 @@
 
 @interface NMBook : NSObject
 
-@property NSString *identifier;
+@property NSNumber *identifier;
 @property NSString *title;
-@property NSURL *baseURL;
+@property NSString *gd_id;
 @property NSInteger pages;
+@property NSURL *cover_img_url;
+@property NSDate *lastOpened;
 
 - (id)initWithDictionary:(NSDictionary *)dict;
 

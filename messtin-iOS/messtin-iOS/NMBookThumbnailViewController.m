@@ -37,7 +37,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
     
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:self.book.identifier];
+    path = [path stringByAppendingPathComponent:[self.book.identifier stringValue]];
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
     
     NSFileManager *fileManager= [NSFileManager defaultManager];
@@ -55,7 +55,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
     
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-    
+    /*
     NSURL *url = [self.book.baseURL URLByAppendingPathComponent:[@"tm" stringByAppendingPathComponent:fileName]];
     NSURLRequest *req = [NSURLRequest requestWithURL:url];
     
@@ -69,7 +69,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
         
     }];
     [downloadTask resume];
-    
+    */
     return cell;
 }
 

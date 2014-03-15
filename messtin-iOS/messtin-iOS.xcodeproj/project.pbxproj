@@ -24,6 +24,10 @@
 		92A9C4F818AF704D005C872E /* NMBookshelfViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92A9C4F718AF704D005C872E /* NMBookshelfViewController.m */; };
 		92A9C4FB18B04103005C872E /* NMBookReadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92A9C4FA18B04103005C872E /* NMBookReadViewController.m */; };
 		92A9C4FE18B057FA005C872E /* NMBook.m in Sources */ = {isa = PBXBuildFile; fileRef = 92A9C4FD18B057FA005C872E /* NMBook.m */; };
+		92BF5FD118D4524B00D41BAC /* libGTLTouchStaticLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD018D4524B00D41BAC /* libGTLTouchStaticLib.a */; };
+		92BF5FD318D455FA00D41BAC /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD218D455FA00D41BAC /* Security.framework */; };
+		92BF5FD518D4560000D41BAC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD418D4560000D41BAC /* MobileCoreServices.framework */; };
+		92BF5FD718D4560E00D41BAC /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */; };
 		B2CB580E99064F1DBA9A7203 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 052569887D9945CEBB334D13 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +68,10 @@
 		92A9C4FA18B04103005C872E /* NMBookReadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMBookReadViewController.m; sourceTree = "<group>"; };
 		92A9C4FC18B057FA005C872E /* NMBook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMBook.h; sourceTree = "<group>"; };
 		92A9C4FD18B057FA005C872E /* NMBook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMBook.m; sourceTree = "<group>"; };
+		92BF5FD018D4524B00D41BAC /* libGTLTouchStaticLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGTLTouchStaticLib.a; path = "google-api-objectivec-client/Source/build/Debug-iphoneos/libGTLTouchStaticLib.a"; sourceTree = "<group>"; };
+		92BF5FD218D455FA00D41BAC /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		92BF5FD418D4560000D41BAC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		DB93FF1172DF47EF9326A878 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -72,6 +80,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92BF5FD718D4560E00D41BAC /* SystemConfiguration.framework in Frameworks */,
+				92BF5FD518D4560000D41BAC /* MobileCoreServices.framework in Frameworks */,
+				92BF5FD318D455FA00D41BAC /* Security.framework in Frameworks */,
+				92BF5FD118D4524B00D41BAC /* libGTLTouchStaticLib.a in Frameworks */,
 				92A9C4C218AF4913005C872E /* CoreGraphics.framework in Frameworks */,
 				92A9C4C418AF4913005C872E /* UIKit.framework in Frameworks */,
 				92A9C4C018AF4913005C872E /* Foundation.framework in Frameworks */,
@@ -115,6 +127,10 @@
 		92A9C4BE18AF4913005C872E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */,
+				92BF5FD418D4560000D41BAC /* MobileCoreServices.framework */,
+				92BF5FD218D455FA00D41BAC /* Security.framework */,
+				92BF5FD018D4524B00D41BAC /* libGTLTouchStaticLib.a */,
 				92A9C4BF18AF4913005C872E /* Foundation.framework */,
 				92A9C4C118AF4913005C872E /* CoreGraphics.framework */,
 				92A9C4C318AF4913005C872E /* UIKit.framework */,
@@ -449,8 +465,17 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "messtin-iOS/messtin-iOS-Prefix.pch";
 				INFOPLIST_FILE = "messtin-iOS/messtin-iOS-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/google-api-objectivec-client/Source/build/Debug-iphoneos",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/google-api-objectivec-client/Source/**";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -466,8 +491,17 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "messtin-iOS/messtin-iOS-Prefix.pch";
 				INFOPLIST_FILE = "messtin-iOS/messtin-iOS-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/google-api-objectivec-client/Source/build/Debug-iphoneos",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/google-api-objectivec-client/Source/**";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
