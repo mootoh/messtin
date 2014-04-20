@@ -10,6 +10,9 @@
 #import "NMBookThumbnailViewController.h"
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
+#import "NMAppDelegate.h"
+#import "GTLDrive.h"
+#import "NMGoogleDrive.h"
 
 static NSString *kCellID = @"bookThumbnailCellId";
 
@@ -18,17 +21,72 @@ static NSString *kCellID = @"bookThumbnailCellId";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-//    [self downloadThumbnails];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void) downloadThumbnails {
+    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
+    
+    GTLQueryDrive *query = [GTLQueryDrive queryForFilesList];
+    query.maxResults = 1000;
+    query.q = [NSString stringWithFormat:@"title = 'tm' and '%@' in parents", self.book.gd_id];
+    [app.googleDrive.driveService executeQuery:query completionHandler:^(GTLServiceTicket *ticket,
+                                                                         GTLDriveFileList *fileList,
+                                                                         NSError *error) {
+        if (error) {
+            NSLog(@"failed in querying GDrive; %@", error);
+            return;
+        }
+        
+        GTLDriveFile *thumbnailDir = fileList[0];
+        NSLog(@"thumbnailDir = %@", thumbnailDir.identifier);
+        
+        GTLQueryDrive *query2 = [GTLQueryDrive queryForFilesList];
+        query2.maxResults = 1000;
+        query2.q = [NSString stringWithFormat:@"title != 'tm' and '%@' in parents", thumbnailDir.identifier];
+        [app.googleDrive.driveService executeQuery:query2 completionHandler:^(GTLServiceTicket *ticket2,
+                                                                             GTLDriveFileList *fileList2,
+                                                                             NSError *error2) {
+            NSArray *sorted = [fileList2.items sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                GTLDriveFile *f1 = (GTLDriveFile *)obj1;
+                GTLDriveFile *f2 = (GTLDriveFile *)obj2;
+                return [f1.title compare:f2.title];
+            }];
+            self.thumbnailInfos = sorted;
+            for (GTLDriveFile *file in sorted) {
+                [self downloadThumbnail:file];
+            }
+        }];
+    }];
 }
 
-- (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section;
-{
+- (void) downloadThumbnail:(GTLDriveFile *)file {
+    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
+
+    [app.googleDrive fetch:file.downloadUrl callback:^(NSData *data, NSError *error) {
+        NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+        path = [path stringByAppendingPathComponent:[self.book.identifier stringValue]];
+
+        NSFileManager *fileManager= [NSFileManager defaultManager];
+        if(![fileManager fileExistsAtPath:path])
+            if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL])
+                NSLog(@"Error: Create folder failed %@", path);
+     
+        NSString *fileName = file.title;
+        path = [path stringByAppendingPathComponent:fileName];
+
+        if (! [fileManager createFileAtPath:path contents:data attributes:nil]) {
+            NSLog(@"failed in creating thumbnail file: %@", path);
+            return;
+        }
+        
+        [self.collectionView reloadData]; // FIXME: only reload the downloaded item.
+    }];
+    
+}
+
+- (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section; {
     return self.book.pages;
 }
 
@@ -36,7 +94,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
 {
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
     
-    NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
     path = [path stringByAppendingPathComponent:[self.book.identifier stringValue]];
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
     
@@ -45,31 +103,17 @@ static NSString *kCellID = @"bookThumbnailCellId";
         if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL])
             NSLog(@"Error: Create folder failed %@", path);
     
-    NSString *fileName = [NSString stringWithFormat:@"tm_%03d.jpg", indexPath.row+1];
+    if (! self.thumbnailInfos)
+        return cell;
+    
+    NSString *fileName = ((GTLDriveFile *)self.thumbnailInfos[indexPath.row]).title;
 
     if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:fileName]]) {
         UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
         iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[documentsDirectoryPath URLByAppendingPathComponent:fileName]]];
         return cell;
     }
-    
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-    /*
-    NSURL *url = [self.book.baseURL URLByAppendingPathComponent:[@"tm" stringByAppendingPathComponent:fileName]];
-    NSURLRequest *req = [NSURLRequest requestWithURL:url];
-    
-    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:req progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
-        NSURL *ret = [documentsDirectoryPath URLByAppendingPathComponent:[response suggestedFilename]];
-        return ret;
-    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
-        NSLog(@"error = %@", error);
-        UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
-        
-    }];
-    [downloadTask resume];
-    */
+
     return cell;
 }
 

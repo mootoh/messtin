@@ -13,6 +13,7 @@
 @interface NMBookReadViewController : UIViewController <UIScrollViewDelegate>
 @property NMBook *book;
 @property NSInteger currentPage;
+@property NSArray *pages;
 
 @property (weak, nonatomic) IBOutlet UIImageView *pageImageView;
 

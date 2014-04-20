@@ -7,11 +7,13 @@
 //
 
 #import "NMAppDelegate.h"
+#import "NMGoogleDrive.h"
 
 @implementation NMAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    self.googleDrive = [NMGoogleDrive new];
     // Override point for customization after application launch.
     return YES;
 }

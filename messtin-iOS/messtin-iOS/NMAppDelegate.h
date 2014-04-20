@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+@class NMGoogleDrive;
+
 @interface NMAppDelegate : UIResponder <UIApplicationDelegate>
 
+@property (strong, nonatomic) NMGoogleDrive *googleDrive;
 @property (strong, nonatomic) UIWindow *window;
 
 @end

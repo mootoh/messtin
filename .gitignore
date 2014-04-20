@@ -3,3 +3,4 @@ server
 xcuserdata
 *.lock
 messtin-iOS/Pods
+node_modules

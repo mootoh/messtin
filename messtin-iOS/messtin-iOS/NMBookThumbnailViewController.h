@@ -11,4 +11,8 @@
 
 @interface NMBookThumbnailViewController : UICollectionViewController
 @property NMBook *book;
+@property NSArray *thumbnailInfos;
+
+- (void) downloadThumbnails;
+
 @end

@@ -10,6 +10,9 @@
 #import "NMBook.h"
 #import "NMBookThumbnailViewController.h"
 #import "AFNetworking/AFNetworking.h"
+#import "NMAppDelegate.h"
+#import "NMGoogleDrive.h"
+#import "GTLDrive.h"
 
 @interface NMBookReadViewController ()
 
@@ -32,18 +35,62 @@
     self.title = self.book.title;
 
     self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.identifier]];
+    NSLog(@"current page = %d", self.currentPage);
+    
+    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
+    
+    [self fetchPageMetaInfos];
 
+    /*
+    [app.googleDrive query:[NSString stringWithFormat:@"title != 'tm' and '%@' in parents", self.book.identifier] callback:^(NSData *data, NSError *error) {
+        NSLog(@"error = %@", error);
+    }];
+     */
+#if 0
     [self downloadPage:self.currentPage show:YES];
     [self downloadPage:self.currentPage-1 show:NO];
     [self downloadPage:self.currentPage+1 show:NO];
-
-    UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-    [self.pageImageView addGestureRecognizer:tgr];
+#endif // 0
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResign)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:NULL];
+}
+
+
+- (void) fetchPageMetaInfos {
+    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
+
+    GTLQueryDrive *query = [GTLQueryDrive queryForFilesList];
+    query.maxResults = 1000;
+    query.q = [NSString stringWithFormat:@"title != 'tm' and '%@' in parents", self.book.gd_id];
+    [app.googleDrive.driveService executeQuery:query completionHandler:^(GTLServiceTicket *ticket,
+                                                              GTLDriveFileList *fileList,
+                                                              NSError *error) {
+        if (error) {
+            NSLog(@"failed in querying GDrive; %@", error);
+            return;
+        }
+        NSArray *sorted = [fileList.items sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            GTLDriveFile *f1 = (GTLDriveFile *)obj1;
+            GTLDriveFile *f2 = (GTLDriveFile *)obj2;
+            return [f1.title compare:f2.title];
+        }];
+        /*
+        for (GTLDriveFile *f in sorted) {
+            NSLog(@"file %@ %@", f.title, f.downloadUrl);
+        }
+         */
+        self.pages = sorted;
+
+        UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
+        [self.pageImageView addGestureRecognizer:tgr];
+
+        [self downloadPage:self.currentPage show:YES];
+    }];
 }
 
 - (void)applicationWillResign
@@ -68,8 +115,8 @@
 
     NSFileManager *fileManager= [NSFileManager defaultManager];
 
-    NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:self.book.identifier];
+    NSString *cacheRoot = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%d", [self.book.identifier intValue]]];
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d.jpg", page]];
 
     if ([fileManager fileExistsAtPath:path]) {
@@ -77,26 +124,32 @@
             self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]]];
             self.title = [self.book.title stringByAppendingFormat:@" %d/%d", page, self.book.pages];
         }
-
         return;
     }
-    
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-    
-    NSURL *url = [NSURL URLWithString:[API_SERVER stringByAppendingFormat:@"/book/%@/%03d.jpg", self.book.identifier, page]];
-    NSURLRequest *req = [NSURLRequest requestWithURL:url];
-    
-    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:req progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
-        NSURL *ret = [NSURL fileURLWithPath:path];
-        return ret;
-    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
+
+    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
+    GTLDriveFile *driveFile = self.pages[self.currentPage];
+    [app.googleDrive fetch:driveFile.downloadUrl callback:^(NSData *data, NSError *error) {
         if (toShow) {
-            self.pageImageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
+            self.pageImageView.image = [UIImage imageWithData:data];
             self.title = [self.book.title stringByAppendingFormat:@" %d/%d", page, self.book.pages];
         }
+
+        NSString *bookDir = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%d", [self.book.identifier intValue]]];
+        if (! [fileManager fileExistsAtPath:bookDir]) {
+            NSError *error = nil;
+            [fileManager createDirectoryAtPath:bookDir withIntermediateDirectories:YES attributes:nil error:&error];
+            if (error) {
+                NSLog(@"Failed in creating a book directory at %@", bookDir);
+                return;
+            }
+        }
+
+        if (! [fileManager createFileAtPath:path contents:data attributes:nil]) {
+            NSLog(@"failed in saving the downloaded page image: %d", self.currentPage);
+        }
     }];
-    [downloadTask resume];
 }
 
 - (void)pageTapped:(UIGestureRecognizer *)recognizer
@@ -159,6 +212,7 @@
     if ([segue.identifier isEqualToString:@"toThumbnailBookPages"]) {
         NMBookThumbnailViewController *vc = (NMBookThumbnailViewController *)segue.destinationViewController;
         vc.book = self.book;
+        [vc downloadThumbnails];
     }
 }
 

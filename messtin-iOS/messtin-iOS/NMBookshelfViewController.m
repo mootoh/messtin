@@ -10,20 +10,12 @@
 #import "AFNetworking/AFNetworking.h"
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
-
-#import <MobileCoreServices/MobileCoreServices.h>
-#import "GTMOAuth2ViewControllerTouch.h"
-#import "GTLDrive.h"
-
-static NSString *const kKeychainItemName = @"Google Drive Quickstart";
-static NSString *const kClientID = @"752439311564-l7gerkejmno69o06jq54nrhf3t30karu.apps.googleusercontent.com";
-static NSString *const kClientSecret = @"2-Ha8VeMaW76sPRtv-gpBzyi";
+#import "NMAppDelegate.h"
+#import "NMGoogleDrive.h"
 
 static NSString *kCellID = @"bookCellId";
-static NSString *kCoverImage = @"001.jpg";
 
 @interface NMBookshelfViewController ()
-@property GTLServiceDrive *driveService;
 @end
 
 @implementation NMBookshelfViewController
@@ -32,21 +24,17 @@ static NSString *kCoverImage = @"001.jpg";
 {
     [super viewDidLoad];
 
-    self.driveService = [[GTLServiceDrive alloc] init];
-    self.driveService.authorizer = [GTMOAuth2ViewControllerTouch authForGoogleFromKeychainForName:kKeychainItemName
-                                                                                         clientID:kClientID
-                                                                                     clientSecret:kClientSecret];
-
     self.title = @"Bookshelf";
     self.books = [NSMutableArray array];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if (![self isAuthorized])
+    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+    if (![app.googleDrive isAuthorized])
     {
         // Not yet authorized, request authorization and push the login UI onto the navigation stack.
-        [self presentViewController:[self createAuthController] animated:YES completion:nil];
+        [self presentViewController:[app.googleDrive createAuthController:@selector(viewController:finishedWithAuth:error:)] animated:YES completion:nil];
     } else {
         //    [AFMGR GET:[API_SERVER stringByAppendingString:@"/books.json"] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         [AFMGR GET:[API_SERVER stringByAppendingString:@"/books"] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -62,24 +50,26 @@ static NSString *kCoverImage = @"001.jpg";
     }
 }
 
-- (void) retrieveCoverImageFromProxyServer:(void(^)(NSError *, UIImage *image))callback
+- (void) retrieveCoverImageFromProxyServer:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
 {
-    NSAssert([self isAuthorized], @"should be authorized");
+    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
 
-    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost:3000/book/1"]];
-    NSURLResponse *response;
-    NSError *error;
-    NSData *data = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:&error];
-    NSAssert(error == nil, @"error in connection");
-
-    NSDictionary *obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
-    NSAssert(error == nil, @"error in parsing JSON");
-
-    GTMHTTPFetcher *fetcher = [self.driveService.fetcherService fetcherWithURLString:obj[@"cover_img_url"]];
-    [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-        callback(error, [UIImage imageWithData:data]);
+    [AFMGR GET:[API_SERVER stringByAppendingFormat:@"/book/%d", [book.identifier intValue]] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//        NSString *coverImageUrlString = @"https://doc-04-6s-docs.googleusercontent.com/docs/securesc/279dtk3gcgbpq9io0fr435qttor7uq2a/bo810mf8v6o9r8j2j31q6e9rde3rsam0/1397959200000/12153878646635434502/12153878646635434502/0B0v3qwjLutgMSnhseUh1ak9SVms?h=16653014193614665626&e=download&gd=true"; // or
+        NSString *coverImageUrl = responseObject[@"cover_img_url"];
+        NSLog(@"cover image url = %@", coverImageUrl);
+        
+        NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
+        [app.googleDrive fetch:coverImageUrl callback:^(NSData *data, NSError *error) {
+            callback(error, [UIImage imageWithData:data]);
+        }];
+    } failure: ^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error in accessing proxy: %@", error);
+        callback(error, nil);
     }];
 
+    
 //    [self retrievePages:obj[@"gd_id"]];
 }
 
@@ -101,12 +91,13 @@ static NSString *kCoverImage = @"001.jpg";
     if(![fileManager fileExistsAtPath:path])
         if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL])
                                  NSLog(@"Error: Create folder failed %@", path);
-
+/*
     if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:kCoverImage]]) {
         UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
         iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[documentsDirectoryPath URLByAppendingPathComponent:kCoverImage]]];
         return cell;
     }
+ */ 
     /*
        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
        AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
@@ -123,8 +114,11 @@ static NSString *kCoverImage = @"001.jpg";
         }];
         [downloadTask resume];
         */
-    [self retrieveCoverImageFromProxyServer:^(NSError *error, UIImage *image) {
-        NSAssert(error == nil, @"failed in fetching cover image");
+    [self retrieveCoverImageFromProxyServer:book callback:^(NSError *error, UIImage *image) {
+        if (error) {
+            NSLog(@"failed in fetching cover image: %@", error);
+            return;
+        }
         UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
         iv.image = image;
     }];
@@ -137,42 +131,6 @@ static NSString *kCoverImage = @"001.jpg";
         NSIndexPath *indexPath = [[self.collectionView indexPathsForSelectedItems] firstObject];
         NMBookReadViewController *vc = (NMBookReadViewController *)segue.destinationViewController;
         vc.book = self.books[indexPath.row];
-    }
-}
-
-// Helper to check if user is authorized
-- (BOOL)isAuthorized
-{
-    return [((GTMOAuth2Authentication *)self.driveService.authorizer) canAuthorize];
-}
-
-// Creates the auth controller for authorizing access to Google Drive.
-- (GTMOAuth2ViewControllerTouch *)createAuthController
-{
-    GTMOAuth2ViewControllerTouch *authController;
-    authController = [[GTMOAuth2ViewControllerTouch alloc] initWithScope:kGTLAuthScopeDrive
-                                                                clientID:kClientID
-                                                            clientSecret:kClientSecret
-                                                        keychainItemName:kKeychainItemName
-                                                                delegate:self
-                                                        finishedSelector:@selector(viewController:finishedWithAuth:error:)];
-    return authController;
-}
-
-// Handle completion of the authorization process, and updates the Drive service
-// with the new credentials.
-- (void)viewController:(GTMOAuth2ViewControllerTouch *)viewController
-      finishedWithAuth:(GTMOAuth2Authentication *)authResult
-                 error:(NSError *)error
-{
-    if (error != nil)
-    {
-        [self showAlert:@"Authentication Error" message:error.localizedDescription];
-        self.driveService.authorizer = nil;
-    }
-    else
-    {
-        self.driveService.authorizer = authResult;
     }
 }
 
