@@ -2,5 +2,5 @@ server
 .DS_Store
 xcuserdata
 *.lock
-messtin-iOS/Pods
+iOS/Pods
 node_modules
