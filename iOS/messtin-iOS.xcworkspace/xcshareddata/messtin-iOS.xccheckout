@@ -5,7 +5,7 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>1D895B53-ED23-4DCF-B121-1A9262BEA068</string>
+	<string>638BA589-9A44-47C4-BA68-BC6054BF126F</string>
 	<key>IDESourceControlProjectName</key>
 	<string>messtin-iOS</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
@@ -14,7 +14,7 @@
 		<string>ssh://github.com/mootoh/messtin.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>messtin-iOS/messtin-iOS.xcworkspace</string>
+	<string>iOS/messtin-iOS.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>766AD624-94D7-49C0-99D6-50A62A61773D</key>
