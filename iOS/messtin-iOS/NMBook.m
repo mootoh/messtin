@@ -16,9 +16,9 @@
     if (self) {
         self.identifier = dict[@"id"];
         self.title = dict[@"title"];
-        self.gd_id = [NSURL URLWithString:dict[@"gd_id"]];
+        self.gd_id = dict[@"gd_id"];
         self.pages = [dict[@"pages"] integerValue];
-        self.cover_img_url = [NSURL URLWithString:dict[@"cover_img_url"]];
+        self.cover_img_gd_id = dict[@"cover_img_gd_id"];
     }
     return self;
 }

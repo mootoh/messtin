@@ -15,5 +15,9 @@
     #import <Foundation/Foundation.h>
 #endif
 
-#define API_SERVER @"http://10.0.1.105:8080"
+//#define API_SERVER @"http://mootoh.net:8080"
+#define API_SERVER @"http://mbp15.local:3000"
+//#define API_SERVER @"http://localhost:3000"
 #define AFMGR [AFHTTPRequestOperationManager manager]
+
+#define k_COVER_IMAGE_FILENAME @"cover.jpg"

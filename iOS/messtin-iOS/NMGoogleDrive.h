@@ -10,6 +10,7 @@
 
 @class GTMOAuth2ViewControllerTouch;
 @class GTLServiceDrive;
+@class GTMOAuth2Authentication;
 
 @interface NMGoogleDrive : NSObject
 
@@ -19,5 +20,6 @@
 - (void) fetch:(NSURL *)url callback:(void(^)(NSData *data, NSError *error))callback;
 - (BOOL) isAuthorized;
 - (GTMOAuth2ViewControllerTouch *)createAuthController:(SEL)finishedSelector;
+- (void)viewController:(GTMOAuth2ViewControllerTouch *)viewController finishedWithAuth:(GTMOAuth2Authentication *)authResult error:(NSError *)error;
 
 @end

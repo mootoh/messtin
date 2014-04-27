@@ -15,18 +15,10 @@
 #import "GTLDrive.h"
 
 @interface NMBookReadViewController ()
-
 @end
 
 @implementation NMBookReadViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
@@ -42,17 +34,6 @@
     
     [self fetchPageMetaInfos];
 
-    /*
-    [app.googleDrive query:[NSString stringWithFormat:@"title != 'tm' and '%@' in parents", self.book.identifier] callback:^(NSData *data, NSError *error) {
-        NSLog(@"error = %@", error);
-    }];
-     */
-#if 0
-    [self downloadPage:self.currentPage show:YES];
-    [self downloadPage:self.currentPage-1 show:NO];
-    [self downloadPage:self.currentPage+1 show:NO];
-#endif // 0
-
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResign)
                                                  name:UIApplicationWillResignActiveNotification
@@ -66,7 +47,7 @@
 
     GTLQueryDrive *query = [GTLQueryDrive queryForFilesList];
     query.maxResults = 1000;
-    query.q = [NSString stringWithFormat:@"title != 'tm' and '%@' in parents", self.book.gd_id];
+    query.q = [NSString stringWithFormat:@"title != 'tm' and title != '%@' and '%@' in parents", k_COVER_IMAGE_FILENAME, self.book.gd_id];
     [app.googleDrive.driveService executeQuery:query completionHandler:^(GTLServiceTicket *ticket,
                                                               GTLDriveFileList *fileList,
                                                               NSError *error) {
@@ -79,11 +60,6 @@
             GTLDriveFile *f2 = (GTLDriveFile *)obj2;
             return [f1.title compare:f2.title];
         }];
-        /*
-        for (GTLDriveFile *f in sorted) {
-            NSLog(@"file %@ %@", f.title, f.downloadUrl);
-        }
-         */
         self.pages = sorted;
 
         UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];

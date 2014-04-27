@@ -12,6 +12,7 @@
 #import "NMBook.h"
 #import "NMAppDelegate.h"
 #import "NMGoogleDrive.h"
+#import "GTLDrive.h"
 
 static NSString *kCellID = @"bookCellId";
 
@@ -34,9 +35,8 @@ static NSString *kCellID = @"bookCellId";
     if (![app.googleDrive isAuthorized])
     {
         // Not yet authorized, request authorization and push the login UI onto the navigation stack.
-        [self presentViewController:[app.googleDrive createAuthController:@selector(viewController:finishedWithAuth:error:)] animated:YES completion:nil];
+        [self presentViewController:(UIViewController *)[app.googleDrive createAuthController:@selector(viewController:finishedWithAuth:error:)] animated:YES completion:nil];
     } else {
-        //    [AFMGR GET:[API_SERVER stringByAppendingString:@"/books.json"] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         [AFMGR GET:[API_SERVER stringByAppendingString:@"/books"] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
             NSArray *books = (NSArray *)responseObject;
             for (NSDictionary *info in books) {
@@ -50,27 +50,28 @@ static NSString *kCellID = @"bookCellId";
     }
 }
 
-- (void) retrieveCoverImageFromProxyServer:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
+- (void) retrieveCoverImageFromGDrive:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
 {
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
     NSAssert([app.googleDrive isAuthorized], @"should be authorized");
 
-    [AFMGR GET:[API_SERVER stringByAppendingFormat:@"/book/%d", [book.identifier intValue]] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-//        NSString *coverImageUrlString = @"https://doc-04-6s-docs.googleusercontent.com/docs/securesc/279dtk3gcgbpq9io0fr435qttor7uq2a/bo810mf8v6o9r8j2j31q6e9rde3rsam0/1397959200000/12153878646635434502/12153878646635434502/0B0v3qwjLutgMSnhseUh1ak9SVms?h=16653014193614665626&e=download&gd=true"; // or
-        NSString *coverImageUrl = responseObject[@"cover_img_url"];
-        NSLog(@"cover image url = %@", coverImageUrl);
-        
-        NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-        [app.googleDrive fetch:coverImageUrl callback:^(NSData *data, NSError *error) {
-            callback(error, [UIImage imageWithData:data]);
+    NSString *coverImageId = book.cover_img_gd_id;
+    GTLQueryDrive *query = [GTLQueryDrive queryForFilesGetWithFileId:coverImageId];
+    query.maxResults = 1;
+    [app.googleDrive.driveService executeQuery:query completionHandler:^(GTLServiceTicket *ticket,
+                                                                         GTLDriveFile *file,
+                                                                         NSError *error) {
+        if (error) {
+            NSLog(@"failed in retrieving a cover image: %@", error);
+            callback(error, nil);
+            return;
+        }
+        [app.googleDrive fetch:file.downloadUrl callback:^(NSData *data, NSError *error2) {
+            UIImage *img = [UIImage imageWithData:data];
+            callback(error2, img);
+            return;
         }];
-    } failure: ^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error in accessing proxy: %@", error);
-        callback(error, nil);
     }];
-
-    
-//    [self retrievePages:obj[@"gd_id"]];
 }
 
 - (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section;
@@ -83,44 +84,35 @@ static NSString *kCellID = @"bookCellId";
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
 
     NMBook *book = [self.books objectAtIndex:indexPath.row];
-    NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:[book.identifier stringValue]];
-    NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
+    NSString *dir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    dir = [dir stringByAppendingPathComponent:[book.identifier stringValue]];
 
     NSFileManager *fileManager= [NSFileManager defaultManager];
-    if(![fileManager fileExistsAtPath:path])
-        if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL])
-                                 NSLog(@"Error: Create folder failed %@", path);
-/*
-    if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:kCoverImage]]) {
+    if(![fileManager fileExistsAtPath:dir])
+        if(![fileManager createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:NULL])
+                                 NSLog(@"Error: Create folder failed %@", dir);
+
+    NSString *coverImagePath = [dir stringByAppendingPathComponent:k_COVER_IMAGE_FILENAME];
+    
+    if ([fileManager fileExistsAtPath:coverImagePath]) {
         UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[documentsDirectoryPath URLByAppendingPathComponent:kCoverImage]]];
+        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:coverImagePath]]];
         return cell;
     }
- */ 
-    /*
-       NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-       AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
 
-       NSURLRequest *req = [NSURLRequest requestWithURL:book.cover_img_url];
-
-       NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:req progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
-                NSURL *ret = [documentsDirectoryPath URLByAppendingPathComponent:[response suggestedFilename]];
-                return ret;
-                } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
-        UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-        iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:filePath]];
-
-        }];
-        [downloadTask resume];
-        */
-    [self retrieveCoverImageFromProxyServer:book callback:^(NSError *error, UIImage *image) {
+    [self retrieveCoverImageFromGDrive:book callback:^(NSError *error, UIImage *image) {
         if (error) {
             NSLog(@"failed in fetching cover image: %@", error);
             return;
         }
         UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
         iv.image = image;
+        
+        
+        if (! [fileManager createFileAtPath:coverImagePath contents:UIImageJPEGRepresentation(image, 1.0) attributes:nil]) {
+            NSLog(@"failed in saving the cover image: %@", error);
+            return;
+        }
     }];
     return cell;
 }

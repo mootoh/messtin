@@ -14,7 +14,7 @@
 @property NSString *title;
 @property NSString *gd_id;
 @property NSInteger pages;
-@property NSURL *cover_img_url;
+@property NSString *cover_img_gd_id;
 @property NSDate *lastOpened;
 
 - (id)initWithDictionary:(NSDictionary *)dict;
