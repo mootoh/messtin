@@ -27,10 +27,7 @@ static NSString *kCellID = @"bookCellId";
 
     self.title = @"Bookshelf";
     self.books = [NSMutableArray array];
-}
 
-- (void) viewDidAppear:(BOOL)animated
-{
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
     if (![app.googleDrive isAuthorized])
     {

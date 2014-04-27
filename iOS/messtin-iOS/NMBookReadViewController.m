@@ -31,8 +31,18 @@
     
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
     NSAssert([app.googleDrive isAuthorized], @"should be authorized");
-    
-    [self fetchPageMetaInfos];
+
+    UIImage *cachedImage = [self cachedImage:self.currentPage];
+    if (cachedImage) {
+        self.pageImageView.image = cachedImage;
+    }
+
+    [self fetchPageMetaInfos:^(NSError *error) {
+        UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
+        [self.pageImageView addGestureRecognizer:tgr];
+        
+        [self downloadPage:self.currentPage show:YES];
+    }];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResign)
@@ -41,7 +51,7 @@
 }
 
 
-- (void) fetchPageMetaInfos {
+- (void) fetchPageMetaInfos:(void(^)(NSError *))callback {
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
     NSAssert([app.googleDrive isAuthorized], @"should be authorized");
 
@@ -53,6 +63,7 @@
                                                               NSError *error) {
         if (error) {
             NSLog(@"failed in querying GDrive; %@", error);
+            callback(error);
             return;
         }
         NSArray *sorted = [fileList.items sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
@@ -61,11 +72,8 @@
             return [f1.title compare:f2.title];
         }];
         self.pages = sorted;
-
-        UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-        [self.pageImageView addGestureRecognizer:tgr];
-
-        [self downloadPage:self.currentPage show:YES];
+        
+        callback(nil);
     }];
 }
 
@@ -82,6 +90,22 @@
 - (void)viewDidDisappear:(BOOL)animated
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+}
+
+- (UIImage *)cachedImage:(NSInteger)page {
+    if (page < 0 || page >= self.book.pages)
+        return nil;
+
+    NSFileManager *fileManager= [NSFileManager defaultManager];
+    
+    NSString *cacheRoot = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%d", [self.book.identifier intValue]]];
+    path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d.jpg", page]];
+    
+    if ([fileManager fileExistsAtPath:path]) {
+        return [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]]];
+    }
+    return nil;
 }
 
 - (void)downloadPage:(NSInteger)page show:(BOOL)toShow
