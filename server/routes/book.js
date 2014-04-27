@@ -45,6 +45,18 @@ exports.list = function(req, res) {
 exports.upload = function(req, res) {
   res.send("uploading a book");
   // decompose a PDF file
+  //
+  // save the src file into tmp dir
+  // spwan(sh pdf2jpegs.sh $tmp/src.pdf $tmp/out)
+  // for j in $tmp/out/*.jpg
+  //   make thumbnail image
+  //   upload $j to GDrive
+  //   upload $j-thumbnail to GDrive
+  // end
+  //
+  // Retrieve the meta data for this file (Book) from GDrive
+  // Notify the client when all upload finished, or there is an error.
+  //
   // save those fragments to the starge server
   // record the location of the files in the storage server
   // record the metadata
