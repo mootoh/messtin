@@ -91,30 +91,47 @@ public class BookReadActivity extends ImageHavingActivity {
         });
     }
 
-    public void nextPage() {
-        currentPage++;
+    private boolean checkPageBound(int page) {
+        if (page <= 0 || page > allMetadata.size()) {
+            Log.d(TAG, "out of bound: page=" + page);
+            return false;
+        }
+        return true;
+    }
+
+    private String filenameForPage(int page) {
         String name = "%03d.jpg";
-        name = String.format(name, currentPage);
-        Log.d(TAG, "next page = " + name);
+        name = String.format(name, page);
+        return name;
+    }
+
+    private void retrievePage(int page) {
+        if (! checkPageBound(page)) return;
+
+        String name = filenameForPage(page);
+        Log.d(TAG, "retrieving page = " + name);
         RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(this, GDriveHelper.getInstance().getClient());
         task.execute(allMetadata.get(name));
     }
 
+    public void nextPage() {
+        if (! checkPageBound(currentPage+1)) return;
+        currentPage++;
+        retrievePage(currentPage);
+        retrievePage(currentPage + 1);
+    }
+
     private void prevPage() {
+        if (! checkPageBound(currentPage-1)) return;
         currentPage--;
-        String name = "%03d.jpg";
-        name = String.format(name, currentPage);
-        Log.d(TAG, "prev page = " + name);
-        RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(this, GDriveHelper.getInstance().getClient());
-        task.execute(allMetadata.get(name));
+        retrievePage(currentPage);
+        retrievePage(currentPage - 1);
     }
 
     @Override
     public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
         ImageView iv = (ImageView)findViewById(R.id.imageView);
-
-        String name = "%03d.jpg";
-        name = String.format(name, currentPage);
+        String name = filenameForPage(currentPage);
 
         if (result.getMetadata().equals(allMetadata.get(name))) {
             iv.setImageBitmap(result.getBitamp());
