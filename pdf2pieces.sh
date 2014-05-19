@@ -1,18 +1,18 @@
 #!/bin/zsh
 
 SRC=$1
-OUTDIR=$2
-TITLE=`basename -s .pdf $SRC`
-
-echo $TITLE
+TEMPSRC=$2
+OUTDIR=$3
 
 split() {
 	# setup
-	cp "$SRC" src.pdf
-	mkdir -p $OUTDIR
+	# cp "$SRC" $TEMPSRC
 
 	# split
-	gs -dBATCH -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dNOPAUSE -sDEVICE=jpeg -r200 -sOutputFile=$OUTDIR/%03d.jpg src.pdf
+	echo split
+	echo $TEMPSRC
+	echo $OUTDIR
+	gs -dBATCH -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dNOPAUSE -sDEVICE=jpeg -r200 -sOutputFile=$OUTDIR/%03d.jpg $TEMPSRC
 }
 
 thumbnails() {
@@ -29,4 +29,4 @@ thumbnails() {
 }
 
 split
-thumbnails
+#thumbnails
