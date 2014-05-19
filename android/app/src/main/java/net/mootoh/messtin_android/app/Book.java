@@ -52,10 +52,16 @@ class Book {
                     return;
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();
-                coverMetadata = mb.get(0);
+                try {
+                    coverMetadata = mb.get(0);
+                } catch (IllegalStateException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
+
                 Log.d(TAG, "cover image id = " + coverMetadata.getDriveId().toString());
                 task = new RetrieveDriveFileContentsAsyncTask(activity, client);
-                task.execute(coverMetadata.getDriveId());
+                task.execute(coverMetadata);
             }
         });
     }
@@ -68,7 +74,7 @@ class Book {
             return null;
         }
         try {
-            return task.get();
+            return task.get().getBitamp();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

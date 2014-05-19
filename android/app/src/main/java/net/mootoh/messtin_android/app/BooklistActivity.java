@@ -42,13 +42,11 @@ class ImageAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        Log.d(TAG, "getCount " + booklistActivity.getBooks().size());
         return booklistActivity.getBooks().size();
     }
 
     @Override
     public Object getItem(int position) {
-        Log.d(TAG, "getItem for " + position);
         return booklistActivity.getBooks().get(position);
     }
 
@@ -60,7 +58,6 @@ class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d(TAG, "getView for " + position);
         ImageView imageView;
         if (convertView == null) {
             imageView = new ImageView(mContext);
@@ -95,7 +92,7 @@ public class BooklistActivity extends ImageHavingActivity {
     }
 
     @Override
-    public void onChanged(Bitmap bm) {
+    public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
         imageAdapter.notifyDataSetChanged();
     }
 
@@ -110,11 +107,9 @@ public class BooklistActivity extends ImageHavingActivity {
 
         final BooklistActivity self = this;
 
-
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Toast.makeText(BooklistActivity.this, "" + position, Toast.LENGTH_SHORT).show();
                 Intent readIntent = new Intent(self, BookReadActivity.class);
                 Book book = books.get(position);
                 readIntent.putExtra("book", book.rootDriveId);
@@ -156,6 +151,7 @@ public class BooklistActivity extends ImageHavingActivity {
     private void messtinRootFolder(final MesstinRootFolderCallback callback) {
         Query query = new Query.Builder()
                 .addFilter(Filters.eq(SearchableField.TITLE, "messtin"))
+                .addFilter(Filters.eq(SearchableField.TRASHED, false))
                 .build();
 
         Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
@@ -166,6 +162,7 @@ public class BooklistActivity extends ImageHavingActivity {
                     return;
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();
+                Log.d(TAG, "messtin root dir count = " + mb.getCount());
                 messtinFolderId = mb.get(0).getDriveId();
                 Log.d(TAG, "messtin folder id = " + messtinFolderId.toString());
                 callback.onResult(null, messtinFolderId);
@@ -191,7 +188,8 @@ public class BooklistActivity extends ImageHavingActivity {
                         MetadataBuffer mb = metadataBufferResult.getMetadataBuffer();
                         ArrayList<Metadata> books = new ArrayList<Metadata>();
                         for (Metadata md : mb) {
-                            books.add(md);
+                            if (! md.isTrashed())
+                                books.add(md);
                         }
                         callback.onResult(null, books);
                     }

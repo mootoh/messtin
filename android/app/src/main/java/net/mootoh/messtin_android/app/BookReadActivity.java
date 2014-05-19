@@ -31,7 +31,7 @@ import java.util.Map;
 public class BookReadActivity extends ImageHavingActivity {
     private static final String TAG = "BookReadActivity";
     Map<String, Metadata> allMetadata = new HashMap<String, Metadata>();
-    int currentPage = 0;
+    int currentPage = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +73,6 @@ public class BookReadActivity extends ImageHavingActivity {
         Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
             public void onResult(DriveApi.MetadataBufferResult result) {
-                Log.d(TAG, "onResult---------------------");
                 if (!result.getStatus().isSuccess()) {
                     Log.d("@@@", "failed in retrieving cover image");
                     return;
@@ -83,9 +82,9 @@ public class BookReadActivity extends ImageHavingActivity {
                     Log.d(TAG, "image " + md.getTitle() + " id = " + md.getDriveId().toString());
                     allMetadata.put(md.getTitle(), md);
 
-                    if (md.getTitle().equals("001.jpg")) {
+                    if (md.getTitle().equals("001.jpg") || md.getTitle().equals("002.jpg")) {
                         RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(self, GDriveHelper.getInstance().getClient());
-                        task.execute(md.getDriveId());
+                        task.execute(md);
                     }
                 }
             }
@@ -98,7 +97,7 @@ public class BookReadActivity extends ImageHavingActivity {
         name = String.format(name, currentPage);
         Log.d(TAG, "next page = " + name);
         RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(this, GDriveHelper.getInstance().getClient());
-        task.execute(allMetadata.get(name).getDriveId());
+        task.execute(allMetadata.get(name));
     }
 
     private void prevPage() {
@@ -107,12 +106,18 @@ public class BookReadActivity extends ImageHavingActivity {
         name = String.format(name, currentPage);
         Log.d(TAG, "prev page = " + name);
         RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(this, GDriveHelper.getInstance().getClient());
-        task.execute(allMetadata.get(name).getDriveId());
+        task.execute(allMetadata.get(name));
     }
 
     @Override
-    public void onChanged(Bitmap bm) {
+    public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
         ImageView iv = (ImageView)findViewById(R.id.imageView);
-        iv.setImageBitmap(bm);
+
+        String name = "%03d.jpg";
+        name = String.format(name, currentPage);
+
+        if (result.getMetadata().equals(allMetadata.get(name))) {
+            iv.setImageBitmap(result.getBitamp());
+        }
     }
 }
