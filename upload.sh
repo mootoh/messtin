@@ -39,7 +39,7 @@ thumbnails() {
 
 upload() {
 	cd $TOPDIR
-	ruby upload.rb $TITLE $OUTDIR
+	ruby upload.rb "$TITLE" $OUTDIR
 }
 
 cleanup() {
