@@ -3,7 +3,6 @@
     package="net.mootoh.messtin_android.app" >
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET"/>
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -16,12 +15,11 @@
             android:label="@string/app_name" >
             <meta-data android:name="com.google.android.apps.drive.APP_ID" android:value="id=752439311564" />
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.google.android.apps.drive.DRIVE_OPEN" />
                 <data android:mimeType="application/vnd.google-apps.drive-sdk.752439311564" />
-                <!--<data android:mimeType="image/jpeg" />-->
-                <!--<data android:mimeType="image/jpg" />-->
-
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -34,7 +32,5 @@
                 <data android:mimeType="application/vnd.google-apps.drive-sdk.752439311564" />
             </intent-filter>
         </activity>
-
     </application>
-
 </manifest>
