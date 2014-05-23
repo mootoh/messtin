@@ -102,15 +102,30 @@ class GDriveApp
 
     media = Google::APIClient::UploadIO.new(filename, 'image/jpeg')
 
-    result = @client.execute(
-      :api_method => drive.files.insert,
-      :body_object => file,
-      :media => media,
-      :parameters => {
-        'uploadType' => 'multipart',
-        'alt' => 'json'
-        })
+    retry_count = 0
 
-    return result.data.id
+    begin
+      result = @client.execute(
+        :api_method => drive.files.insert,
+        :body_object => file,
+        :media => media,
+        :parameters => {
+          'uploadType' => 'multipart',
+          'alt' => 'json'
+          })
+      return result.data.id
+    rescue Exception => e
+      puts 'Failed to upload ' + filename
+      puts e.message
+      puts e.backtrace.inspect
+
+      retry_count += 1
+
+      if retry_count <= 3
+        retry
+      else
+        raise e
+      end
+    end
   end
 end
