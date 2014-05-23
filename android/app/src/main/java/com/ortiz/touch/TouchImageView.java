@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -97,6 +98,9 @@ public class TouchImageView extends ImageView {
     private GestureDetector.OnDoubleTapListener doubleTapListener = null;
     private OnTouchListener userTouchListener = null;
     private OnTouchImageViewListener touchImageViewListener = null;
+    private Handler handler_ = new Handler();
+    boolean isScalingDelayed_ = false;
+    boolean isMovingDelayed_ = false;
 
     public TouchImageView(Context context) {
         super(context);
@@ -846,10 +850,19 @@ public class TouchImageView extends ImageView {
 	                        fixTrans();
 	                        last.set(curr.x, curr.y);
 	                    }
+                        isMovingDelayed_ = true;
 	                    break;
-	
+
 	                case MotionEvent.ACTION_UP:
 	                case MotionEvent.ACTION_POINTER_UP:
+                        if (state == State.DRAG || state == State.FLING) { // checking previous state
+                            handler_.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    isMovingDelayed_ = false;
+                                }
+                            }, 50);
+                        }
 	                    setState(State.NONE);
 	                    break;
 	            }
@@ -857,6 +870,14 @@ public class TouchImageView extends ImageView {
             
             setImageMatrix(matrix);
             
+            // these are hacks to avoid "pinch/move-then-touchEvent happens" weird behavior.
+            if (mScaleDetector.isInProgress() || isScalingDelayed_) {
+                return true;
+            }
+            if (state == State.NONE && isMovingDelayed_) {
+                return true;
+            }
+
             //
     		// User-defined OnTouchListener
     		//
@@ -887,6 +908,7 @@ public class TouchImageView extends ImageView {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             setState(State.ZOOM);
+            isScalingDelayed_ = true;
             return true;
         }
 
@@ -922,6 +944,13 @@ public class TouchImageView extends ImageView {
 	        	DoubleTapZoom doubleTap = new DoubleTapZoom(targetZoom, viewWidth / 2, viewHeight / 2, true);
 	        	compatPostOnAnimation(doubleTap);
         	}
+
+            handler_.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    isScalingDelayed_ = false;
+                }
+            }, 50);
         }
     }
     
