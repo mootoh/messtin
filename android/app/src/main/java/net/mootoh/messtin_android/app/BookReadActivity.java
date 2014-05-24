@@ -30,12 +30,16 @@ import java.util.Map;
  */
 public class BookReadActivity extends ImageHavingActivity {
     private static final String TAG = "BookReadActivity";
+    private static final String KEY_PAGE_NUMBER = "KEY_PAGE_NUMBER";
     Map<String, Metadata> allMetadata = new HashMap<String, Metadata>();
     int currentPage = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
+        }
         setContentView(R.layout.activity_bookread);
 
         Intent intent = getIntent();
@@ -61,6 +65,12 @@ public class BookReadActivity extends ImageHavingActivity {
                 return false;
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putInt(KEY_PAGE_NUMBER, currentPage);
     }
 
     public void setup(DriveId driveId) {
