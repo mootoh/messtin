@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="net.mootoh.messtin_android.app.BooklistActivity" >
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_goto_page"
+        android:title="@string/action_goto_page"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_plusone_medium_off_client"
+        android:showAsAction="always"
+        />
+</menu>

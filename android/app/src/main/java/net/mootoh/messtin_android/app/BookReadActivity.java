@@ -1,11 +1,19 @@
 package net.mootoh.messtin_android.app;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.gms.common.api.ResultCallback;
@@ -204,5 +212,51 @@ public class BookReadActivity extends ImageHavingActivity {
         if (result.getMetadata().equals(allMetadata.get(name))) {
             iv.setImageBitmap(result.getBitamp());
         }
+    }
+
+    class GotoPageDialogFragment extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            final View customView = inflater.inflate(R.layout.dialog_gotopage, null);
+            builder.setMessage("Goto page")
+                    .setView(customView)
+                    .setPositiveButton("Go", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            EditText et = (EditText)customView.findViewById(R.id.page_to_go);
+                            int page = Integer.parseInt(et.getText().toString());
+                            currentPage = page;
+                            retrievePage(page);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            return;
+                        }
+                    });
+            return builder.create();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.bookread, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_goto_page) {
+            GotoPageDialogFragment gpdf = new GotoPageDialogFragment();
+            gpdf.show(getFragmentManager(), "yay");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

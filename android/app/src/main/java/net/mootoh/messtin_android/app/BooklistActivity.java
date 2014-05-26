@@ -1,10 +1,15 @@
 package net.mootoh.messtin_android.app;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -108,20 +113,7 @@ public class BooklistActivity extends ImageHavingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist);
 
-        Parse.initialize(this, APP_ID, CLIENT_KEY);
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
-        query.getFirstInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject parseObject, ParseException e) {
-                Log.d(TAG, "done fetching: " + parseObject.toString());
-                if (e != null) {
-                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
-                    return;
-                }
-
-            }
-        });
+//        setupParse();
 
         imageAdapter = new ImageAdapter(this);
         GridView gridView = (GridView) findViewById(R.id.gridview);
@@ -162,6 +154,23 @@ public class BooklistActivity extends ImageHavingActivity {
             @Override
             public void onConnectionSuspended(int i) {
                 Log.d("@@@", "onConnetionSuspended");
+            }
+        });
+    }
+
+    private void setupParse() {
+        Parse.initialize(this, APP_ID, CLIENT_KEY);
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
+        query.getFirstInBackground(new GetCallback<ParseObject>() {
+            @Override
+            public void done(ParseObject parseObject, ParseException e) {
+                Log.d(TAG, "done fetching: " + parseObject.toString());
+                if (e != null) {
+                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
+                    return;
+                }
+
             }
         });
     }
