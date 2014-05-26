@@ -17,6 +17,7 @@ import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.ortiz.touch.TouchImageView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,16 +58,61 @@ public class BookReadActivity extends ImageHavingActivity {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_UP:
                         float x = event.getX();
-                        if (x > iv.getWidth() / 2) {
+                        float y = event.getY();
+                        
+                        float left = iv.getWidth()/4;
+                        float right = iv.getWidth()*3/4;
+                        float top = iv.getHeight()/4;
+                        float bottom = iv.getHeight()*3/4;
+                        
+                        if (x > right) {
                             nextPage();
-                        } else {
+                        } else if (x < left) {
                             prevPage();
+                        } else if (y > top && y < bottom) {
+                            toggleFullscreen();
                         }
                         break;
                 }
                 return false;
             }
         });
+
+        hideSystemUI();
+    }
+
+    boolean isInFullscreen = true;
+    private void toggleFullscreen() {
+        if (isInFullscreen) {
+            showSystemUI();
+        } else {
+            hideSystemUI();
+        }
+        isInFullscreen = !isInFullscreen;
+    }
+
+    private void showSystemUI() {
+        View v = findViewById(R.id.imageView);
+        v.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    // This snippet hides the system bars.
+    private void hideSystemUI() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        View v = findViewById(R.id.imageView);
+        v.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE
+        );
     }
 
     @Override
