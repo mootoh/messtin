@@ -1,9 +1,7 @@
 package net.mootoh.messtin_android.app;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,9 +18,7 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,18 +29,23 @@ public class BookReadActivity extends ImageHavingActivity {
     private static final String KEY_PAGE_NUMBER = "KEY_PAGE_NUMBER";
     Map<String, Metadata> allMetadata = new HashMap<String, Metadata>();
     int currentPage = 1;
+    DriveId driveId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
-        }
         setContentView(R.layout.activity_bookread);
 
         Intent intent = getIntent();
         DriveId driveId = intent.getParcelableExtra("book");
-        Log.d(TAG, "driveId = " + driveId.toString());
+        this.driveId = driveId;
+
+        if (savedInstanceState != null) {
+            currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
+        }
+
+        SharedPreferences pref = getPreferences(MODE_PRIVATE);
+        currentPage = pref.getInt(driveId.toString() + ":page", currentPage);
 
         setup(driveId);
 
@@ -71,11 +72,24 @@ public class BookReadActivity extends ImageHavingActivity {
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         state.putInt(KEY_PAGE_NUMBER, currentPage);
+        saveCurrentPage();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveCurrentPage();
+    }
+
+    private void saveCurrentPage() {
+        SharedPreferences pref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor edit = pref.edit();
+        edit.putInt(driveId.toString() + ":page", currentPage);
+        edit.commit();
     }
 
     public void setup(DriveId driveId) {
         Query query = new Query.Builder()
-//                .addFilter(Filters.eq(SearchableField.TITLE, "jpg"))
                 .addFilter(Filters.in(SearchableField.PARENTS, driveId))
                 .build();
 
@@ -89,14 +103,11 @@ public class BookReadActivity extends ImageHavingActivity {
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();
                 for (Metadata md : mb) {
-                    Log.d(TAG, "image " + md.getTitle() + " id = " + md.getDriveId().toString());
+//                    Log.d(TAG, "image " + md.getTitle() + " id = " + md.getDriveId().toString());
                     allMetadata.put(md.getTitle(), md);
-
-                    if (md.getTitle().equals("001.jpg") || md.getTitle().equals("002.jpg")) {
-                        RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(self, GDriveHelper.getInstance().getClient());
-                        task.execute(md);
-                    }
                 }
+
+                retrievePage(currentPage);
             }
         });
     }
