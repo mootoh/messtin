@@ -1,6 +1,5 @@
 package net.mootoh.messtin_android.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -29,6 +28,12 @@ import com.google.android.gms.drive.query.SearchableField;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.parse.GetCallback;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 class ImageAdapter extends BaseAdapter {
     final private Context mContext;
@@ -82,6 +87,8 @@ class ImageAdapter extends BaseAdapter {
 public class BooklistActivity extends ImageHavingActivity {
     final private static int RESOLVE_CONNECTION_REQUEST_CODE = 1;
     final private static String TAG = "BookListActivity";
+    public static final String APP_ID = "YOUR_APP_ID";
+    public static final String CLIENT_KEY = "YOUR_CLIENT_KEY";
 
     DriveId messtinFolderId;
     List<Book> books = new ArrayList<Book>();
@@ -100,6 +107,21 @@ public class BooklistActivity extends ImageHavingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist);
+
+        Parse.initialize(this, APP_ID, CLIENT_KEY);
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
+        query.getFirstInBackground(new GetCallback<ParseObject>() {
+            @Override
+            public void done(ParseObject parseObject, ParseException e) {
+                Log.d(TAG, "done fetching: " + parseObject.toString());
+                if (e != null) {
+                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
+                    return;
+                }
+
+            }
+        });
 
         imageAdapter = new ImageAdapter(this);
         GridView gridView = (GridView) findViewById(R.id.gridview);

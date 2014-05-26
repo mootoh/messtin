@@ -23,4 +23,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.google.android.gms:play-services:+'
     compile 'com.google.apis:google-api-services-drive:v2-rev123-1.18.0-rc'
+    compile files('libs/Parse-1.5.0.jar')
 }
