@@ -49,7 +49,8 @@ public class BookReadActivity extends ImageHavingActivity {
 
         setup(driveId);
 
-        final ImageView iv = (ImageView)findViewById(R.id.imageView);
+        final TouchImageView iv = (TouchImageView)findViewById(R.id.imageView);
+        iv.setMaxZoom(5);
         iv.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
