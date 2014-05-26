@@ -18,13 +18,7 @@ function list(error, client, auth) {
       var messtin_id = response.items[0].id;
       console.log('messtin.id = ' + messtin_id);
 
-      client.drive.files.list({
-        q: "title = 'bundle' and '" + messtin_id + "' in parents"
-      }).withAuthClient(auth).execute(function(error2, response2) {
-        var bundle_id = response2.items[0].id;
-        console.log('bundle.id = ' + bundle_id);
-        callback(bundle_id);
-      });
+      callback(messtin_id);
     });
   }
 
