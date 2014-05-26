@@ -48,6 +48,9 @@
                                              selector:@selector(applicationWillResign)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:NULL];
+
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+
 }
 
 
@@ -155,10 +158,26 @@
 - (void)pageTapped:(UIGestureRecognizer *)recognizer
 {
     CGPoint touchLoc = [recognizer locationInView:self.pageImageView];
-    if (touchLoc.x < self.pageImageView.frame.size.width/2) {
+    CGFloat left = self.pageImageView.frame.size.width / 4;
+    CGFloat right = self.pageImageView.frame.size.width * 3 / 4;
+    CGFloat top = self.pageImageView.frame.size.height / 4;
+    CGFloat bottom = self.pageImageView.frame.size.height * 3 / 4;
+    if (touchLoc.x < left) {
         [self prevPage];
-    } else {
+    } else if (touchLoc.x > right) {
         [self nextPage];
+    } else if (touchLoc.y > top && touchLoc.y < bottom) {
+        [self toggleUI];
+    }
+}
+
+- (void) toggleUI {
+    if (self.navigationController.navigationBarHidden) {
+        [self.navigationController setNavigationBarHidden:NO animated:YES];
+        [self.navigationController setToolbarHidden:NO animated:YES];
+    } else {
+        [self.navigationController setNavigationBarHidden:YES animated:YES];
+        [self.navigationController setToolbarHidden:YES animated:YES];
     }
 }
 
