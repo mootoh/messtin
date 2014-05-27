@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -43,6 +44,7 @@ public class BookReadActivity extends ImageHavingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_bookread);
 
         Intent intent = getIntent();
@@ -187,6 +189,7 @@ public class BookReadActivity extends ImageHavingActivity {
         String name = filenameForPage(page);
         Log.d(TAG, "retrieving page = " + name);
         RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(this, GDriveHelper.getInstance().getClient());
+        setProgressBarIndeterminateVisibility(true);
         task.execute(allMetadata.get(name));
     }
 
@@ -206,6 +209,8 @@ public class BookReadActivity extends ImageHavingActivity {
 
     @Override
     public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
+        setProgressBarIndeterminateVisibility(false);
+
         ImageView iv = (ImageView)findViewById(R.id.imageView);
         String name = filenameForPage(currentPage);
 
