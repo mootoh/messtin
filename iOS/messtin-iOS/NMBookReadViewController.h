@@ -16,6 +16,7 @@
 @property NSArray *pages;
 
 @property (weak, nonatomic) IBOutlet UIImageView *pageImageView;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 
 - (void)downloadPage:(NSInteger)page show:(BOOL)toShow;
 

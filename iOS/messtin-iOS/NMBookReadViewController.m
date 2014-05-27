@@ -130,6 +130,9 @@
         return;
     }
 
+    self.activityIndicator.hidden = NO;
+    [self.activityIndicator startAnimating];
+
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
     NSAssert([app.googleDrive isAuthorized], @"should be authorized");
     GTLDriveFile *driveFile = self.pages[self.currentPage];
@@ -138,6 +141,9 @@
             self.pageImageView.image = [UIImage imageWithData:data];
             self.title = [self.book.title stringByAppendingFormat:@" %d/%d", page, self.book.pages];
         }
+
+        self.activityIndicator.hidden = YES;
+        [self.activityIndicator stopAnimating];
 
         NSString *bookDir = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%d", [self.book.identifier intValue]]];
         if (! [fileManager fileExistsAtPath:bookDir]) {
