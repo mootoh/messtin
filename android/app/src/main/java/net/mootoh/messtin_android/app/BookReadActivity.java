@@ -40,6 +40,7 @@ public class BookReadActivity extends ImageHavingActivity {
     Map<String, Metadata> allMetadata = new HashMap<String, Metadata>();
     int currentPage = 1;
     DriveId driveId;
+    String title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class BookReadActivity extends ImageHavingActivity {
         Intent intent = getIntent();
         DriveId driveId = intent.getParcelableExtra("book");
         this.driveId = driveId;
+        title = intent.getStringExtra("title");
 
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
@@ -57,6 +59,8 @@ public class BookReadActivity extends ImageHavingActivity {
 
         SharedPreferences pref = getPreferences(MODE_PRIVATE);
         currentPage = pref.getInt(driveId.toString() + ":page", currentPage);
+
+        updateTitle();
 
         setup(driveId);
 
@@ -89,6 +93,10 @@ public class BookReadActivity extends ImageHavingActivity {
         });
 
         hideSystemUI();
+    }
+
+    private void updateTitle() {
+        setTitle(title + " - " + currentPage);
     }
 
     boolean isInFullscreen = true;
@@ -216,6 +224,7 @@ public class BookReadActivity extends ImageHavingActivity {
 
         if (result.getMetadata().equals(allMetadata.get(name))) {
             iv.setImageBitmap(result.getBitamp());
+            updateTitle();
         }
     }
 

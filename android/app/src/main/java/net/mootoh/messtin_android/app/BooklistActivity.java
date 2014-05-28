@@ -127,6 +127,7 @@ public class BooklistActivity extends ImageHavingActivity {
                 Intent readIntent = new Intent(self, BookReadActivity.class);
                 Book book = books.get(position);
                 readIntent.putExtra("book", book.rootDriveId);
+                readIntent.putExtra("title", book.title);
                 startActivity(readIntent);
             }
         });
