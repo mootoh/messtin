@@ -79,7 +79,6 @@ class ImageAdapter extends BaseAdapter {
         }
         Book book = booklistActivity.getBooks().get(position);
         if (book == null || book.getCoverMetadata() == null) {
-            imageView.setImageResource(R.drawable.cover);
         } else {
             Bitmap bm = book.getCoverBitmap();
             imageView.setImageBitmap(bm);
