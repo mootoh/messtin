@@ -33,5 +33,9 @@
                 <data android:mimeType="application/vnd.google-apps.drive-sdk.752439311564" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".OverallSettingsActivity"
+            android:label="@string/title_activity_overall_settings" >
+        </activity>
     </application>
 </manifest>
