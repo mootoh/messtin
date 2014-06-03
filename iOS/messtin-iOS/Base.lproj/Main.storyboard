@@ -7,8 +7,10 @@
         <!--Navigation Controller-->
         <scene sceneID="FBy-ad-Kdc">
             <objects>
-                <navigationController definesPresentationContext="YES" navigationBarHidden="YES" id="6wG-i4-XoN" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="2qv-RH-s2B">
+                <navigationController definesPresentationContext="YES" id="6wG-i4-XoN" sceneMemberID="viewController">
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="2qv-RH-s2B">
+                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -17,14 +19,14 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1Ki-uk-bn9" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-431" y="71"/>
+            <point key="canvasLocation" x="-877" y="-362"/>
         </scene>
         <!--Bookshelf View Controller-->
         <scene sceneID="U8r-yE-hV0">
             <objects>
                 <collectionViewController autoresizesArchivedViewToFullSize="NO" id="rGU-EF-gQj" customClass="NMBookshelfViewController" sceneMemberID="viewController">
                     <collectionView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="tPI-Rh-Uod">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="20" id="wl9-Iy-205">
                             <size key="itemSize" width="96" height="128"/>
@@ -58,11 +60,18 @@
                             <outlet property="delegate" destination="rGU-EF-gQj" id="uPh-Wo-UQY"/>
                         </connections>
                     </collectionView>
-                    <navigationItem key="navigationItem" id="265-UA-h6B"/>
+                    <navigationItem key="navigationItem" id="265-UA-h6B">
+                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="Wts-Gg-o3g">
+                            <connections>
+                                <segue destination="S3n-11-yOu" kind="push" id="TYf-lQ-FDc"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="APN-Qs-z8C" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="447" y="71"/>
+            <point key="canvasLocation" x="79" y="-362"/>
         </scene>
         <!--Book Read View Controller-->
         <scene sceneID="vD2-eh-HIm">
@@ -73,11 +82,11 @@
                         <viewControllerLayoutGuide type="bottom" id="dmh-zq-5ad"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ShA-GG-iIe">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" minimumZoomScale="0.5" maximumZoomScale="6" translatesAutoresizingMaskIntoConstraints="NO" id="U8V-ef-Xnr">
-                                <rect key="frame" x="0.0" y="64" width="768" height="911"/>
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="911"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <subviews>
                                     <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KFg-jQ-5ln">
@@ -95,7 +104,7 @@
                                 </connections>
                             </scrollView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bll-Pa-l8X">
-                                <rect key="frame" x="0.0" y="980" width="768" height="44"/>
+                                <rect key="frame" x="0.0" y="916" width="768" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem title="Goto..." id="UoR-GH-3tg">
@@ -128,14 +137,53 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PMk-Ou-e9J" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="601" y="281"/>
+            <point key="canvasLocation" x="1127" y="441"/>
+        </scene>
+        <!--Setting View Controller-->
+        <scene sceneID="e4w-5f-Kn2">
+            <objects>
+                <viewController id="S3n-11-yOu" customClass="NMSettingViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="8R9-Ks-hLc"/>
+                        <viewControllerLayoutGuide type="bottom" id="PRd-fw-vpk"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="uFI-F0-rUK">
+                        <rect key="frame" x="0.0" y="64" width="768" height="960"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Maximum Cache Size (MB):" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6zy-e8-hZI">
+                                <rect key="frame" x="20" y="30" width="212" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Wgt-p3-UZ7">
+                                <rect key="frame" x="240" y="26" width="191" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="S3n-11-yOu" id="8LP-tR-446"/>
+                                </connections>
+                            </textField>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="W78-CJ-m6D"/>
+                    <connections>
+                        <outlet property="maxCacheTextField" destination="Wgt-p3-UZ7" id="urq-iB-plJ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ibe-Sn-EAa" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1127" y="-785"/>
         </scene>
         <!--Book Thumbnail View Controller-->
         <scene sceneID="dc8-Mn-Ude">
             <objects>
                 <collectionViewController autoresizesArchivedViewToFullSize="NO" id="UHw-H7-bjW" customClass="NMBookThumbnailViewController" sceneMemberID="viewController">
                     <collectionView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="vCY-Tr-EKL">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="en4-rM-HwF">
                             <size key="itemSize" width="96" height="128"/>
@@ -170,7 +218,7 @@
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6Do-gX-xOY" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1722" y="11"/>
+            <point key="canvasLocation" x="2006" y="441"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

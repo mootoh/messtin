@@ -21,3 +21,4 @@
 #define AFMGR [AFHTTPRequestOperationManager manager]
 
 #define k_COVER_IMAGE_FILENAME @"cover.jpg"
+#define k_MAXIMUM_CACHE_SIZE_KEY @"k_MAXIMUM_CACHE_SIZE_KEY"
