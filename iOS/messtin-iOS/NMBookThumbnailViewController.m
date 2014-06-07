@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Motohiro Takayama. All rights reserved.
 //
 
-#import "AFNetworking/AFNetworking.h"
 #import "NMBookThumbnailViewController.h"
 #import "NMBookReadViewController.h"
 #import "NMBook.h"

@@ -7,7 +7,6 @@
 //
 
 #import "NMBookshelfViewController.h"
-#import "AFNetworking/AFNetworking.h"
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
 #import "NMAppDelegate.h"
@@ -18,6 +17,7 @@
 static NSString *kCellID = @"bookCellId";
 
 @interface NMBookshelfViewController ()
+- (void) setupParse;
 @end
 
 @implementation NMBookshelfViewController
@@ -30,23 +30,28 @@ static NSString *kCellID = @"bookCellId";
     self.books = [NSMutableArray array];
     [self setupParse];
 
+    // authenticate with Google Drive
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    if (![app.googleDrive isAuthorized])
-    {
+    if (![app.googleDrive isAuthorized]) {
         // Not yet authorized, request authorization and push the login UI onto the navigation stack.
         [self presentViewController:(UIViewController *)[app.googleDrive createAuthController:@selector(viewController:finishedWithAuth:error:)] animated:YES completion:nil];
-    } else {
-        [AFMGR GET:[API_SERVER stringByAppendingString:@"/books"] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            NSArray *books = (NSArray *)responseObject;
-            for (NSDictionary *info in books) {
-                NMBook *book = [[NMBook alloc] initWithDictionary:info];
-                [self.books addObject:book];
-            }
-            [self.collectionView reloadData];
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"Error: %@", error);
-        }];
+        return;
     }
+
+    PFQuery *query = [PFQuery queryWithClassName:@"Book"];
+    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        if (error) {
+            NSLog(@"failed in retrieving books from Parse");
+            return;
+        }
+        
+        for (PFObject *obj in objects) {
+            NSLog(@"book : %@", obj.objectId);
+            NMBook *book = [[NMBook alloc] initWithParseObject:obj];
+            [self.books addObject:book];
+        }
+        [self.collectionView reloadData];
+    }];
 }
 
 - (void) setupParse {

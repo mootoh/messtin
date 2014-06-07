@@ -9,7 +9,6 @@
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
 #import "NMBookThumbnailViewController.h"
-#import "AFNetworking/AFNetworking.h"
 #import "NMAppDelegate.h"
 #import "NMGoogleDrive.h"
 #import "GTLDrive.h"

@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class PFObject;
+
 @interface NMBook : NSObject
 
 @property NSNumber *identifier;
@@ -18,5 +20,6 @@
 @property NSDate *lastOpened;
 
 - (id)initWithDictionary:(NSDictionary *)dict;
+- (id)initWithParseObject:(PFObject *)object;
 
 @end
