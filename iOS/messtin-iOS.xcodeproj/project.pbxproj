@@ -9,6 +9,14 @@
 /* Begin PBXBuildFile section */
 		920643CE18D4925400033792 /* NMGoogleDrive.m in Sources */ = {isa = PBXBuildFile; fileRef = 920643CD18D4925400033792 /* NMGoogleDrive.m */; };
 		920643D018D49BB000033792 /* GTMOAuth2ViewTouch.xib in Resources */ = {isa = PBXBuildFile; fileRef = 920643CF18D49BB000033792 /* GTMOAuth2ViewTouch.xib */; };
+		924B4C731940B68600A7708C /* parse_secret.plist in Resources */ = {isa = PBXBuildFile; fileRef = 924B4C721940B68600A7708C /* parse_secret.plist */; };
+		924B4C751941FED700A7708C /* Parse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924B4C741941FED700A7708C /* Parse.framework */; };
+		924B4C771941FEFC00A7708C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924B4C761941FEFC00A7708C /* AudioToolbox.framework */; };
+		924B4C791941FF0300A7708C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924B4C781941FF0300A7708C /* CFNetwork.framework */; };
+		924B4C7B1941FF0E00A7708C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924B4C7A1941FF0E00A7708C /* CoreLocation.framework */; };
+		924B4C7D1941FF1900A7708C /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 924B4C7C1941FF1900A7708C /* libz.dylib */; };
+		924B4C7F1941FF2700A7708C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924B4C7E1941FF2700A7708C /* QuartzCore.framework */; };
+		924B4C811941FF3A00A7708C /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 924B4C801941FF3A00A7708C /* StoreKit.framework */; };
 		926113DA193E0E10004ADF8E /* NMSettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 926113D9193E0E10004ADF8E /* NMSettingViewController.m */; };
 		92A2768518C198B400167B4C /* NMBookThumbnailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92A2768418C198B400167B4C /* NMBookThumbnailViewController.m */; };
 		92A9C4C018AF4913005C872E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A9C4BF18AF4913005C872E /* Foundation.framework */; };
@@ -49,6 +57,17 @@
 		920643CC18D4925400033792 /* NMGoogleDrive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMGoogleDrive.h; sourceTree = "<group>"; };
 		920643CD18D4925400033792 /* NMGoogleDrive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMGoogleDrive.m; sourceTree = "<group>"; };
 		920643CF18D49BB000033792 /* GTMOAuth2ViewTouch.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = GTMOAuth2ViewTouch.xib; path = "google-api-objectivec-client/Source/OAuth2/Touch/GTMOAuth2ViewTouch.xib"; sourceTree = SOURCE_ROOT; };
+		924B4C721940B68600A7708C /* parse_secret.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = parse_secret.plist; sourceTree = "<group>"; };
+		924B4C741941FED700A7708C /* Parse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Parse.framework; sourceTree = "<group>"; };
+		924B4C761941FEFC00A7708C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		924B4C781941FF0300A7708C /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		924B4C7A1941FF0E00A7708C /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		924B4C7C1941FF1900A7708C /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		924B4C7E1941FF2700A7708C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		924B4C801941FF3A00A7708C /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		924B4C821941FF8B00A7708C /* Twitter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Twitter.framework; path = System/Library/Frameworks/Twitter.framework; sourceTree = SDKROOT; };
+		924B4C841941FF9700A7708C /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
+		924B4C861941FFA300A7708C /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		926113D8193E0E10004ADF8E /* NMSettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMSettingViewController.h; sourceTree = "<group>"; };
 		926113D9193E0E10004ADF8E /* NMSettingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMSettingViewController.m; sourceTree = "<group>"; };
 		92A2768318C198B400167B4C /* NMBookThumbnailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMBookThumbnailViewController.h; sourceTree = "<group>"; };
@@ -88,14 +107,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92BF5FD718D4560E00D41BAC /* SystemConfiguration.framework in Frameworks */,
-				92BF5FD518D4560000D41BAC /* MobileCoreServices.framework in Frameworks */,
-				92BF5FD318D455FA00D41BAC /* Security.framework in Frameworks */,
-				92BF5FD118D4524B00D41BAC /* libGTLTouchStaticLib.a in Frameworks */,
+				924B4C771941FEFC00A7708C /* AudioToolbox.framework in Frameworks */,
+				924B4C791941FF0300A7708C /* CFNetwork.framework in Frameworks */,
 				92A9C4C218AF4913005C872E /* CoreGraphics.framework in Frameworks */,
-				92A9C4C418AF4913005C872E /* UIKit.framework in Frameworks */,
+				924B4C7B1941FF0E00A7708C /* CoreLocation.framework in Frameworks */,
 				92A9C4C018AF4913005C872E /* Foundation.framework in Frameworks */,
+				92BF5FD118D4524B00D41BAC /* libGTLTouchStaticLib.a in Frameworks */,
 				B2CB580E99064F1DBA9A7203 /* libPods.a in Frameworks */,
+				924B4C7D1941FF1900A7708C /* libz.dylib in Frameworks */,
+				92BF5FD518D4560000D41BAC /* MobileCoreServices.framework in Frameworks */,
+				924B4C751941FED700A7708C /* Parse.framework in Frameworks */,
+				924B4C7F1941FF2700A7708C /* QuartzCore.framework in Frameworks */,
+				924B4C811941FF3A00A7708C /* StoreKit.framework in Frameworks */,
+				92BF5FD318D455FA00D41BAC /* Security.framework in Frameworks */,
+				92BF5FD718D4560E00D41BAC /* SystemConfiguration.framework in Frameworks */,
+				92A9C4C418AF4913005C872E /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,6 +161,16 @@
 		92A9C4BE18AF4913005C872E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				924B4C861941FFA300A7708C /* Social.framework */,
+				924B4C841941FF9700A7708C /* Accounts.framework */,
+				924B4C821941FF8B00A7708C /* Twitter.framework */,
+				924B4C801941FF3A00A7708C /* StoreKit.framework */,
+				924B4C7E1941FF2700A7708C /* QuartzCore.framework */,
+				924B4C7C1941FF1900A7708C /* libz.dylib */,
+				924B4C7A1941FF0E00A7708C /* CoreLocation.framework */,
+				924B4C781941FF0300A7708C /* CFNetwork.framework */,
+				924B4C761941FEFC00A7708C /* AudioToolbox.framework */,
+				924B4C741941FED700A7708C /* Parse.framework */,
 				92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */,
 				92BF5FD418D4560000D41BAC /* MobileCoreServices.framework */,
 				92BF5FD218D455FA00D41BAC /* Security.framework */,
@@ -180,6 +216,7 @@
 				92A9C4C818AF4913005C872E /* InfoPlist.strings */,
 				92A9C4CB18AF4913005C872E /* main.m */,
 				92A9C4CD18AF4913005C872E /* messtin-iOS-Prefix.pch */,
+				924B4C721940B68600A7708C /* parse_secret.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -287,6 +324,7 @@
 				920643D018D49BB000033792 /* GTMOAuth2ViewTouch.xib in Resources */,
 				92A9C4D818AF4913005C872E /* Images.xcassets in Resources */,
 				92A9C4CA18AF4913005C872E /* InfoPlist.strings in Resources */,
+				924B4C731940B68600A7708C /* parse_secret.plist in Resources */,
 				92A9C4D318AF4913005C872E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -478,6 +516,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "messtin-iOS/messtin-iOS-Prefix.pch";
 				INFOPLIST_FILE = "messtin-iOS/messtin-iOS-Info.plist";
@@ -485,10 +527,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/google-api-objectivec-client/Source/build/Debug-iphoneos",
 				);
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/google-api-objectivec-client/Source/**";
@@ -504,6 +543,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "messtin-iOS/messtin-iOS-Prefix.pch";
 				INFOPLIST_FILE = "messtin-iOS/messtin-iOS-Info.plist";
@@ -511,10 +554,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/google-api-objectivec-client/Source/build/Debug-iphoneos",
 				);
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/google-api-objectivec-client/Source/**";
