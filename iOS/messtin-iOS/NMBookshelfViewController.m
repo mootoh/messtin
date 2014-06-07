@@ -13,6 +13,7 @@
 #import "NMAppDelegate.h"
 #import "NMGoogleDrive.h"
 #import "GTLDrive.h"
+#import <Parse/Parse.h>
 
 static NSString *kCellID = @"bookCellId";
 
@@ -27,6 +28,7 @@ static NSString *kCellID = @"bookCellId";
 
     self.title = @"Bookshelf";
     self.books = [NSMutableArray array];
+    [self setupParse];
 
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
     if (![app.googleDrive isAuthorized])
@@ -45,6 +47,21 @@ static NSString *kCellID = @"bookCellId";
             NSLog(@"Error: %@", error);
         }];
     }
+}
+
+- (void) setupParse {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"parse_secret" ofType:@"plist"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if (![fileManager fileExistsAtPath:path]) {
+        NSLog(@"no such file: %@", path);
+        return;
+    }
+    
+    NSDictionary *secret = [NSDictionary dictionaryWithContentsOfFile:path];
+
+    [Parse setApplicationId:secret[@"APP_ID"]
+                  clientKey:secret[@"CLIENT_KEY"]];
 }
 
 - (void) retrieveCoverImageFromGDrive:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
