@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
@@ -16,6 +17,8 @@ import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.google.api.services.drive.DriveRequest;
+import com.parse.ParseObject;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -28,17 +31,13 @@ class Book {
     static final private String TAG = "Book";
 
     final String title;
-    final DriveId rootDriveId;
+    DriveId rootDriveId;
     final BooklistActivity activity;
     Metadata coverMetadata;
     List<Metadata> pages;
     RetrieveDriveFileContentsAsyncTask task;
 
-    Book(Metadata md, final GoogleApiClient client, final BooklistActivity activity) {
-        title = md.getTitle();
-        rootDriveId = md.getDriveId();
-        this.activity = activity;
-
+    private void initialize(final GoogleApiClient client, final BooklistActivity activity) {
         Query query = new Query.Builder()
                 .addFilter(Filters.eq(SearchableField.TITLE, "cover.jpg"))
                 .addFilter(Filters.in(SearchableField.PARENTS, rootDriveId))
@@ -62,6 +61,28 @@ class Book {
                 Log.d(TAG, "cover image id = " + coverMetadata.getDriveId().toString());
                 task = new RetrieveDriveFileContentsAsyncTask(activity, client);
                 task.execute(coverMetadata);
+            }
+        });
+    }
+
+    Book(Metadata md, final GoogleApiClient client, final BooklistActivity activity) {
+        title = md.getTitle();
+        rootDriveId = md.getDriveId();
+        this.activity = activity;
+        initialize(client, activity);
+
+    }
+
+    Book(ParseObject object, final GoogleApiClient client, final BooklistActivity activity) {
+        title = object.getString("title");
+        this.activity = activity;
+
+        com.google.android.gms.common.api.PendingResult<com.google.android.gms.drive.DriveApi.DriveIdResult> pr = Drive.DriveApi.fetchDriveId(client, object.getString("gd_id"));
+        pr.setResultCallback(new ResultCallback<DriveApi.DriveIdResult>() {
+            @Override
+            public void onResult(DriveApi.DriveIdResult driveIdResult) {
+                rootDriveId = driveIdResult.getDriveId();
+                initialize(client, activity);
             }
         });
     }

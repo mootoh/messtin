@@ -34,6 +34,7 @@ import com.google.android.gms.drive.query.SearchableField;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -91,8 +92,6 @@ class ImageAdapter extends BaseAdapter {
 public class BooklistActivity extends ImageHavingActivity {
     final private static int RESOLVE_CONNECTION_REQUEST_CODE = 1;
     final private static String TAG = "BookListActivity";
-    public static final String APP_ID = "YOUR_APP_ID";
-    public static final String CLIENT_KEY = "YOUR_CLIENT_KEY";
 
     DriveId messtinFolderId;
     List<Book> books = new ArrayList<Book>();
@@ -112,7 +111,7 @@ public class BooklistActivity extends ImageHavingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist);
 
-//        setupParse();
+        setupParse();
 
         imageAdapter = new ImageAdapter(this);
         GridView gridView = (GridView) findViewById(R.id.gridview);
@@ -134,6 +133,7 @@ public class BooklistActivity extends ImageHavingActivity {
         GDriveHelper.createInstance(this, new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(Bundle bundle) {
+                /*
                 allBookFolders(new AllBookFoldersCallback() {
                     @Override
                     public void onResult(Error error, List<Metadata> metadatas) {
@@ -149,6 +149,7 @@ public class BooklistActivity extends ImageHavingActivity {
                         imageAdapter.notifyDataSetChanged();
                     }
                 });
+                */
             }
 
             @Override
@@ -156,12 +157,23 @@ public class BooklistActivity extends ImageHavingActivity {
                 Log.d("@@@", "onConnetionSuspended");
             }
         });
-    }
-
-    private void setupParse() {
-        Parse.initialize(this, APP_ID, CLIENT_KEY);
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if (e != null) {
+                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
+                    return;
+                }
+                for (ParseObject obj: parseObjects) {
+                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
+                    books.add(book);
+                }
+                imageAdapter.notifyDataSetChanged();
+            }
+        });
+        /*
         query.getFirstInBackground(new GetCallback<ParseObject>() {
             @Override
             public void done(ParseObject parseObject, ParseException e) {
@@ -173,6 +185,11 @@ public class BooklistActivity extends ImageHavingActivity {
 
             }
         });
+        */
+    }
+
+    private void setupParse() {
+        Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_key));
     }
 
     interface MesstinRootFolderCallback {

@@ -2,13 +2,12 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.0.1'
-
+    buildToolsVersion '19.1.0'
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
     }
     buildTypes {
         release {
@@ -16,12 +15,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    productFlavors {
+    }
 }
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile files('libs/Parse-1.5.0.jar')
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.google.android.gms:play-services:+'
     compile 'com.google.apis:google-api-services-drive:v2-rev123-1.18.0-rc'
-    compile files('libs/Parse-1.5.0.jar')
+    compile 'com.android.support:support-v4:19.+'
 }
