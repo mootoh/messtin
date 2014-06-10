@@ -36,6 +36,7 @@ class Book {
     Metadata coverMetadata;
     List<Metadata> pages;
     RetrieveDriveFileContentsAsyncTask task;
+    ParseObject parseObject;
 
     private void initialize(final GoogleApiClient client, final BooklistActivity activity) {
         Query query = new Query.Builder()
@@ -76,6 +77,7 @@ class Book {
     Book(ParseObject object, final GoogleApiClient client, final BooklistActivity activity) {
         title = object.getString("title");
         this.activity = activity;
+        this.parseObject = object;
 
         com.google.android.gms.common.api.PendingResult<com.google.android.gms.drive.DriveApi.DriveIdResult> pr = Drive.DriveApi.fetchDriveId(client, object.getString("gd_id"));
         pr.setResultCallback(new ResultCallback<DriveApi.DriveIdResult>() {

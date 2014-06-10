@@ -27,8 +27,15 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.ortiz.touch.TouchImageView;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +48,7 @@ public class BookReadActivity extends ImageHavingActivity {
     int currentPage = 1;
     DriveId driveId;
     String title;
+    ParseObject parseObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +57,7 @@ public class BookReadActivity extends ImageHavingActivity {
         setContentView(R.layout.activity_bookread);
 
         Intent intent = getIntent();
+        String parseObjectId = intent.getStringExtra("parseObjectId");
         DriveId driveId = intent.getParcelableExtra("book");
         this.driveId = driveId;
         title = intent.getStringExtra("title");
@@ -63,6 +72,18 @@ public class BookReadActivity extends ImageHavingActivity {
         updateTitle();
 
         setup(driveId);
+
+        ParseQuery parseQ = ParseQuery.getQuery("Book");
+        parseQ.getInBackground(parseObjectId, new GetCallback() {
+            @Override
+            public void done(ParseObject po, ParseException e) {
+                if (e != null) {
+                    Log.d(TAG, "failed in retrieving object from parse: " + e);
+                    return;
+                }
+                parseObject = po;
+            }
+        });
 
         final TouchImageView iv = (TouchImageView)findViewById(R.id.imageView);
         iv.setMaxZoom(5);
@@ -266,10 +287,40 @@ public class BookReadActivity extends ImageHavingActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_goto_page) {
-            GotoPageDialogFragment gpdf = new GotoPageDialogFragment();
-            gpdf.show(getFragmentManager(), "yay");
-            return true;
+        switch (id) {
+            case R.id.action_goto_page:
+                GotoPageDialogFragment gpdf = new GotoPageDialogFragment();
+                gpdf.show(getFragmentManager(), "yay");
+                return true;
+            case R.id.action_save_bookmark:
+                ParseObject bookmark = new ParseObject("Bookmark");
+                bookmark.put("page", currentPage);
+                bookmark.put("book", this.parseObject);
+                bookmark.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.d(TAG, "failed in saving a bookmark: " + e);
+                        }
+                    }
+                });
+                return true;
+            case R.id.action_show_bookmark:
+                ParseQuery query = new ParseQuery("Bookmark");
+                query.whereEqualTo("book", this.parseObject);
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> list, ParseException e) {
+                        if (e != null) {
+                            Log.d(TAG, "failed in retrieving bookmark list from parse: " + e);
+                            return;
+                        }
+                        for (ParseObject bookmark : list) {
+                            Log.d(TAG, "bookmark: " + bookmark.getNumber("page"));
+                        }
+                    }
+                });
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
