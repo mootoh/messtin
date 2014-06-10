@@ -18,6 +18,7 @@
 @property NSInteger pages;
 @property NSString *cover_img_gd_id;
 @property NSDate *lastOpened;
+@property (strong) PFObject *parseObject;
 
 - (id)initWithDictionary:(NSDictionary *)dict;
 - (id)initWithParseObject:(PFObject *)object;

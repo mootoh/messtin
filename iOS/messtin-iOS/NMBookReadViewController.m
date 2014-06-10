@@ -12,6 +12,7 @@
 #import "NMAppDelegate.h"
 #import "NMGoogleDrive.h"
 #import "GTLDrive.h"
+#import <Parse/Parse.h>
 
 @interface NMBookReadViewController ()
 @end
@@ -240,5 +241,26 @@
     }
 }
 
+- (IBAction)saveBookmark:(id)sender {
+    PFObject *bookmark = [PFObject objectWithClassName:@"Bookmark"];
+    bookmark[@"page"] = [NSNumber numberWithInt:self.currentPage];
+    bookmark[@"book"] = self.book.parseObject;
+    [bookmark saveInBackground];
+}
+
+- (IBAction)showBookmarks:(id)sender {
+    PFQuery *query = [PFQuery queryWithClassName:@"Bookmark"];
+    [query whereKey:@"book" equalTo:self.book.parseObject];
+    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        if  (error) {
+            NSLog(@"failed in querying : %@", error);
+            return;
+        }
+        for (PFObject *obj in objects) {
+            NSLog(@"obj : %@", obj[@"page"]);
+        }
+    }];
+
+}
 
 @end

@@ -117,7 +117,16 @@
                                             <segue destination="UHw-H7-bjW" kind="push" identifier="toThumbnailBookPages" id="amh-dH-zIx"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem title="Bookmark" id="Ds2-ZF-Rpa"/>
+                                    <barButtonItem systemItem="action" id="Ds2-ZF-Rpa">
+                                        <connections>
+                                            <action selector="saveBookmark:" destination="WAG-A8-4aW" id="CPz-Oe-otf"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem systemItem="organize" id="M3a-Pj-UK5">
+                                        <connections>
+                                            <action selector="showBookmarks:" destination="WAG-A8-4aW" id="Cny-si-le0"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                         </subviews>
