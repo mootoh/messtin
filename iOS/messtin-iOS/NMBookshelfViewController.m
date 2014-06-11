@@ -8,6 +8,7 @@
 
 #import "NMBookshelfViewController.h"
 #import "NMBookReadViewController.h"
+#import "NMBookInfoViewController.h"
 #import "NMBook.h"
 #import "NMAppDelegate.h"
 #import "NMGoogleDrive.h"
@@ -17,6 +18,7 @@
 static NSString *kCellID = @"bookCellId";
 
 @interface NMBookshelfViewController ()
+@property NSIndexPath *prevIndexPath;
 - (void) setupParse;
 @end
 
@@ -38,8 +40,27 @@ static NSString *kCellID = @"bookCellId";
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAuthorized) name:k_GDRIVE_AUTH_FINISHED object:nil];
         return;
     }
-    
+
+    [self.collectionView addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressOnCell:)]];
     [self fetchBooks];
+}
+
+
+- (void) longPressOnCell:(UIGestureRecognizer *)gr {
+    CGPoint p = [gr locationInView:self.collectionView];
+    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:p];
+    if (self.prevIndexPath == indexPath)
+        return;
+    
+    self.prevIndexPath = indexPath;
+
+    CGRect inRect = CGRectMake(p.x, p.y, 4, 4);
+
+    NMBookInfoViewController *bivc = [[NMBookInfoViewController alloc] initWithNibName:@"NMBookInfoViewController" bundle:nil];
+    bivc.book = self.books[indexPath.row];
+
+    UIPopoverController *pc = [[UIPopoverController alloc] initWithContentViewController:bivc];
+    [pc presentPopoverFromRect:inRect inView:self.collectionView permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 }
 
 - (void) onAuthorized {

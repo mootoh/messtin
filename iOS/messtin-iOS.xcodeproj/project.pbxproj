@@ -39,6 +39,8 @@
 		92BF5FD318D455FA00D41BAC /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD218D455FA00D41BAC /* Security.framework */; };
 		92BF5FD518D4560000D41BAC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD418D4560000D41BAC /* MobileCoreServices.framework */; };
 		92BF5FD718D4560E00D41BAC /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */; };
+		92E2B0C2194903AA0071AADF /* NMBookInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92E2B0C0194903AA0071AADF /* NMBookInfoViewController.m */; };
+		92E2B0C3194903AA0071AADF /* NMBookInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 92E2B0C1194903AA0071AADF /* NMBookInfoViewController.xib */; };
 		B2CB580E99064F1DBA9A7203 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 052569887D9945CEBB334D13 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -99,6 +101,9 @@
 		92BF5FD218D455FA00D41BAC /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		92BF5FD418D4560000D41BAC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		92E2B0BF194903AA0071AADF /* NMBookInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMBookInfoViewController.h; sourceTree = "<group>"; };
+		92E2B0C0194903AA0071AADF /* NMBookInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMBookInfoViewController.m; sourceTree = "<group>"; };
+		92E2B0C1194903AA0071AADF /* NMBookInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NMBookInfoViewController.xib; sourceTree = "<group>"; };
 		DB93FF1172DF47EF9326A878 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -198,6 +203,9 @@
 				92A2768418C198B400167B4C /* NMBookThumbnailViewController.m */,
 				926113D8193E0E10004ADF8E /* NMSettingViewController.h */,
 				926113D9193E0E10004ADF8E /* NMSettingViewController.m */,
+				92E2B0BF194903AA0071AADF /* NMBookInfoViewController.h */,
+				92E2B0C0194903AA0071AADF /* NMBookInfoViewController.m */,
+				92E2B0C1194903AA0071AADF /* NMBookInfoViewController.xib */,
 				92A9C4FC18B057FA005C872E /* NMBook.h */,
 				92A9C4FD18B057FA005C872E /* NMBook.m */,
 				92A9C4D718AF4913005C872E /* Images.xcassets */,
@@ -321,6 +329,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92E2B0C3194903AA0071AADF /* NMBookInfoViewController.xib in Resources */,
 				920643D018D49BB000033792 /* GTMOAuth2ViewTouch.xib in Resources */,
 				92A9C4D818AF4913005C872E /* Images.xcassets in Resources */,
 				92A9C4CA18AF4913005C872E /* InfoPlist.strings in Resources */,
@@ -383,6 +392,7 @@
 				92A9C4FE18B057FA005C872E /* NMBook.m in Sources */,
 				926113DA193E0E10004ADF8E /* NMSettingViewController.m in Sources */,
 				920643CE18D4925400033792 /* NMGoogleDrive.m in Sources */,
+				92E2B0C2194903AA0071AADF /* NMBookInfoViewController.m in Sources */,
 				92A9C4CC18AF4913005C872E /* main.m in Sources */,
 				92A9C4D018AF4913005C872E /* NMAppDelegate.m in Sources */,
 			);
