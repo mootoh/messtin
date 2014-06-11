@@ -35,9 +35,19 @@ static NSString *kCellID = @"bookCellId";
     if (![app.googleDrive isAuthorized]) {
         // Not yet authorized, request authorization and push the login UI onto the navigation stack.
         [self presentViewController:(UIViewController *)[app.googleDrive createAuthController:@selector(viewController:finishedWithAuth:error:)] animated:YES completion:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAuthorized) name:k_GDRIVE_AUTH_FINISHED object:nil];
         return;
     }
+    
+    [self fetchBooks];
+}
 
+- (void) onAuthorized {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:k_GDRIVE_AUTH_FINISHED object:nil];
+    [self fetchBooks];
+}
+
+- (void) fetchBooks {
     PFQuery *query = [PFQuery queryWithClassName:@"Book"];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         if (error) {
