@@ -104,7 +104,7 @@ static NSString *kCellID = @"bookCellId";
 
     NMBook *book = [self.books objectAtIndex:indexPath.row];
     NSString *dir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    dir = [dir stringByAppendingPathComponent:[book.identifier stringValue]];
+    dir = [dir stringByAppendingPathComponent:book.gd_id];
 
     NSFileManager *fileManager= [NSFileManager defaultManager];
     if(![fileManager fileExistsAtPath:dir])

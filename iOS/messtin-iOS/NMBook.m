@@ -17,7 +17,6 @@
     if (! self)
         return nil;
     
-    self.identifier = dict[@"id"];
     self.title = dict[@"title"];
     self.gd_id = dict[@"gd_id"];
     self.pages = [dict[@"pages"] integerValue];
@@ -31,7 +30,6 @@
     if (! self)
         return nil;
 
-    self.identifier = object[@"objectId"];
     self.title = object[@"title"];
     self.gd_id = object[@"gd_id"];
     self.pages = [object[@"pages"] integerValue];

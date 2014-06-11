@@ -12,7 +12,7 @@
 #import "GTMOAuth2ViewControllerTouch.h"
 #import "GTLDrive.h"
 
-static NSString *const kKeychainItemName = @"Google Drive Quickstart";
+static NSString *const kKeychainItemName = @"Messtin Google Drive Auth";
 static NSString *const kClientID = @"752439311564-l7gerkejmno69o06jq54nrhf3t30karu.apps.googleusercontent.com";
 static NSString *const kClientSecret = @"2-Ha8VeMaW76sPRtv-gpBzyi";
 
@@ -91,6 +91,8 @@ static NSString *const kClientSecret = @"2-Ha8VeMaW76sPRtv-gpBzyi";
     else
     {
         self.driveService.authorizer = authResult;
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:k_GDRIVE_AUTH_FINISHED object:nil];
     }
 }
 

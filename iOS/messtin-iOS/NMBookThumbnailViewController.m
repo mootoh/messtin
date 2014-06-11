@@ -65,7 +65,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
 
     [app.googleDrive fetch:file.downloadUrl callback:^(NSData *data, NSError *error) {
         NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-        path = [path stringByAppendingPathComponent:[self.book.identifier stringValue]];
+        path = [path stringByAppendingPathComponent:self.book.gd_id];
         path = [path stringByAppendingPathComponent:@"tm"];
 
         NSFileManager *fileManager= [NSFileManager defaultManager];
@@ -95,7 +95,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
     
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:[self.book.identifier stringValue]];
+    path = [path stringByAppendingPathComponent:self.book.gd_id];
     path = [path stringByAppendingPathComponent:@"tm"];
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
     

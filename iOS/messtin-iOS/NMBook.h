@@ -12,13 +12,12 @@
 
 @interface NMBook : NSObject
 
-@property NSNumber *identifier;
 @property NSString *title;
 @property NSString *gd_id;
 @property NSInteger pages;
 @property NSString *cover_img_gd_id;
 @property NSDate *lastOpened;
-@property (strong) PFObject *parseObject;
+@property (nonatomic, strong) PFObject *parseObject;
 
 - (id)initWithDictionary:(NSDictionary *)dict;
 - (id)initWithParseObject:(PFObject *)object;

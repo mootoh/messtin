@@ -26,7 +26,7 @@
 
     self.title = self.book.title;
 
-    self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.identifier]];
+    self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.gd_id]];
     NSLog(@"current page = %d", self.currentPage);
     
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
@@ -102,7 +102,7 @@
     NSFileManager *fileManager= [NSFileManager defaultManager];
     
     NSString *cacheRoot = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%d", [self.book.identifier intValue]]];
+    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.gd_id]];
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d.jpg", page]];
     
     if ([fileManager fileExistsAtPath:path]) {
@@ -119,7 +119,7 @@
     NSFileManager *fileManager= [NSFileManager defaultManager];
 
     NSString *cacheRoot = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%d", [self.book.identifier intValue]]];
+    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.gd_id]];
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d.jpg", page]];
 
     if ([fileManager fileExistsAtPath:path]) {
@@ -145,7 +145,7 @@
         self.activityIndicator.hidden = YES;
         [self.activityIndicator stopAnimating];
 
-        NSString *bookDir = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%d", [self.book.identifier intValue]]];
+        NSString *bookDir = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.gd_id]];
         if (! [fileManager fileExistsAtPath:bookDir]) {
             NSError *error = nil;
             [fileManager createDirectoryAtPath:bookDir withIntermediateDirectories:YES attributes:nil error:&error];
@@ -201,7 +201,7 @@
 
 - (void)saveCurrentPage
 {
-    [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.identifier]];
+    [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.gd_id]];
 }
 
 #pragma mark UIScrollViewDelegate
