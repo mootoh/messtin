@@ -1,15 +1,10 @@
 package net.mootoh.messtin_android.app;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -30,16 +26,14 @@ import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class ImageAdapter extends BaseAdapter {
     final private Context mContext;
@@ -128,6 +122,16 @@ public class BooklistActivity extends ImageHavingActivity {
                 readIntent.putExtra("title", book.title);
                 readIntent.putExtra("parseObjectId", book.parseObject.getObjectId());
                 startActivity(readIntent);
+            }
+        });
+        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Book book = books.get(position);
+                Toast toast = Toast.makeText(self, book.parseObject.getString("description"), Toast.LENGTH_SHORT);
+                toast.show();
+
+                return true;
             }
         });
 
