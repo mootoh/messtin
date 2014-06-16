@@ -48,7 +48,7 @@ class Book {
             @Override
             public void onResult(DriveApi.MetadataBufferResult result) {
                 if (!result.getStatus().isSuccess()) {
-                    Log.d("@@@", "failed in retrieving cover image");
+                    Log.e(TAG, "failed in retrieving cover image");
                     return;
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();

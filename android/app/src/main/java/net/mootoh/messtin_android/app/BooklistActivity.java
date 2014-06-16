@@ -31,6 +31,7 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,6 @@ class ImageAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        Log.d(TAG, "getItemId for " + position);
         return 0;
     }
 
@@ -104,40 +104,83 @@ public class BooklistActivity extends ImageHavingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist);
+        imageAdapter = new ImageAdapter(this);
 
         setupParse();
+        setupGridView();
+        setupGDrive();
 
-        imageAdapter = new ImageAdapter(this);
-        GridView gridView = (GridView) findViewById(R.id.gridview);
-        gridView.setAdapter(imageAdapter);
+        fetchLocalParseObjects();
+        fetchRemoteParseObjects();
+    }
 
+    private void fetchLocalParseObjects() {
         final BooklistActivity self = this;
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
+        query.fromLocalDatastore();
+        query.findInBackground(new FindCallback<ParseObject>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent readIntent = new Intent(self, BookReadActivity.class);
-                Book book = books.get(position);
-                readIntent.putExtra("book", book.rootDriveId);
-                readIntent.putExtra("title", book.title);
-                readIntent.putExtra("parseObjectId", book.parseObject.getObjectId());
-                startActivity(readIntent);
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if (e != null) {
+                    Log.d(TAG, "failed in retrieving Parse objects from local store: " + e.getMessage());
+                    return;
+                }
+                for (ParseObject obj: parseObjects) {
+                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
+                    books.add(book);
+                }
+                imageAdapter.notifyDataSetChanged();
             }
         });
-        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Book book = books.get(position);
-                Toast toast = Toast.makeText(self, book.parseObject.getString("description"), Toast.LENGTH_SHORT);
-                toast.show();
+    }
 
-                return true;
+    private void fetchRemoteParseObjects() {
+        final BooklistActivity self = this;
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if (e != null) {
+                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
+                    return;
+                }
+                for (ParseObject obj: parseObjects) {
+                    boolean found = false;
+                    for (Book book : books) {
+                        if (book.parseObject.equals(obj)) {
+                            Log.d(TAG, "parseObject " + obj.getObjectId() + " already exists, skipping");
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found)
+                        continue;
+
+                    obj.pinInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null) {
+                                Log.e(TAG, "failed in pinning to local store: " + e.getMessage());
+                            }
+                            Log.d(TAG, "done pinning to local store");
+                        }
+                    });
+
+                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
+                    books.add(book);
+                }
+                imageAdapter.notifyDataSetChanged();
             }
         });
+    }
 
+    private void setupGDrive() {
         GDriveHelper.createInstance(this, new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(Bundle bundle) {
+                Log.d(TAG, "GDrive connected");
                 /*
                 allBookFolders(new AllBookFoldersCallback() {
                     @Override
@@ -159,38 +202,38 @@ public class BooklistActivity extends ImageHavingActivity {
 
             @Override
             public void onConnectionSuspended(int i) {
-                Log.d("@@@", "onConnetionSuspended");
+                Log.d(TAG, "GDrive onConnetionSuspended");
+            }
+        });
+    }
+
+    private void setupGridView() {
+        GridView gridView = (GridView) findViewById(R.id.gridview);
+        gridView.setAdapter(imageAdapter);
+        final BooklistActivity self = this;
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent readIntent = new Intent(self, BookReadActivity.class);
+                Book book = books.get(position);
+                readIntent.putExtra("book", book.rootDriveId);
+                readIntent.putExtra("title", book.title);
+                readIntent.putExtra("parseObjectId", book.parseObject.getObjectId());
+                startActivity(readIntent);
             }
         });
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
-        query.findInBackground(new FindCallback<ParseObject>() {
+        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void done(List<ParseObject> parseObjects, ParseException e) {
-                if (e != null) {
-                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
-                    return;
-                }
-                for (ParseObject obj: parseObjects) {
-                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
-                    books.add(book);
-                }
-                imageAdapter.notifyDataSetChanged();
-            }
-        });
-        /*
-        query.getFirstInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject parseObject, ParseException e) {
-                Log.d(TAG, "done fetching: " + parseObject.toString());
-                if (e != null) {
-                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
-                    return;
-                }
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Book book = books.get(position);
+                Toast toast = Toast.makeText(self, book.parseObject.getString("description"), Toast.LENGTH_SHORT);
+                toast.show();
 
+                return true;
             }
         });
-        */
     }
 
     private void setupParse() {
