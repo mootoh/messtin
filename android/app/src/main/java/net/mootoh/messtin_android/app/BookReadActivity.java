@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
@@ -44,6 +45,8 @@ import java.util.Map;
 public class BookReadActivity extends ImageHavingActivity {
     private static final String TAG = "BookReadActivity";
     private static final String KEY_PAGE_NUMBER = "KEY_PAGE_NUMBER";
+    private static final int JUMP_TO_PAGE = 2;
+
     Map<String, Metadata> allMetadata = new HashMap<String, Metadata>();
     int currentPage = 1;
     DriveId driveId;
@@ -287,6 +290,7 @@ public class BookReadActivity extends ImageHavingActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        final BookReadActivity self = this;
         switch (id) {
             case R.id.action_goto_page:
                 GotoPageDialogFragment gpdf = new GotoPageDialogFragment();
@@ -301,27 +305,23 @@ public class BookReadActivity extends ImageHavingActivity {
                     public void done(ParseException e) {
                         if (e != null) {
                             Log.d(TAG, "failed in saving a bookmark: " + e);
+                            return;
                         }
+                        Toast.makeText(self, "Bookmark saved", Toast.LENGTH_SHORT).show();
                     }
                 });
                 return true;
             case R.id.action_show_bookmark:
-                ParseQuery query = new ParseQuery("Bookmark");
-                query.whereEqualTo("book", this.parseObject);
-                query.findInBackground(new FindCallback<ParseObject>() {
-                    @Override
-                    public void done(List<ParseObject> list, ParseException e) {
-                        if (e != null) {
-                            Log.d(TAG, "failed in retrieving bookmark list from parse: " + e);
-                            return;
-                        }
-                        for (ParseObject bookmark : list) {
-                            Log.d(TAG, "bookmark: " + bookmark.getNumber("page"));
-                        }
-                    }
-                });
+                Intent bookmarkActivity = new Intent(this, BookmarkActivity.class);
+                bookmarkActivity.putExtra("parseObjectId", this.parseObject.getObjectId());
+                startActivity(bookmarkActivity);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
-}
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == JUMP_TO_PAGE) {
+            int pageTo = data.getIntExtra("page", currentPage);
+
+        }
