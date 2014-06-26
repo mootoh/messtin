@@ -45,7 +45,7 @@ import java.util.Map;
 public class BookReadActivity extends ImageHavingActivity {
     private static final String TAG = "BookReadActivity";
     private static final String KEY_PAGE_NUMBER = "KEY_PAGE_NUMBER";
-    private static final int JUMP_TO_PAGE = 2;
+    public static final int JUMP_TO_PAGE = 2;
 
     Map<String, Metadata> allMetadata = new HashMap<String, Metadata>();
     int currentPage = 1;
@@ -88,7 +88,7 @@ public class BookReadActivity extends ImageHavingActivity {
             }
         });
 
-        final TouchImageView iv = (TouchImageView)findViewById(R.id.imageView);
+        final TouchImageView iv = (TouchImageView) findViewById(R.id.imageView);
         iv.setMaxZoom(5);
         iv.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -97,12 +97,12 @@ public class BookReadActivity extends ImageHavingActivity {
                     case MotionEvent.ACTION_UP:
                         float x = event.getX();
                         float y = event.getY();
-                        
-                        float left = iv.getWidth()/4;
-                        float right = iv.getWidth()*3/4;
-                        float top = iv.getHeight()/4;
-                        float bottom = iv.getHeight()*3/4;
-                        
+
+                        float left = iv.getWidth() / 4;
+                        float right = iv.getWidth() * 3 / 4;
+                        float top = iv.getHeight() / 4;
+                        float bottom = iv.getHeight() * 3 / 4;
+
                         if (x > right) {
                             nextPage();
                         } else if (x < left) {
@@ -124,6 +124,7 @@ public class BookReadActivity extends ImageHavingActivity {
     }
 
     boolean isInFullscreen = true;
+
     private void toggleFullscreen() {
         if (isInFullscreen) {
             showSystemUI();
@@ -138,7 +139,8 @@ public class BookReadActivity extends ImageHavingActivity {
         v.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        );
     }
 
     // This snippet hides the system bars.
@@ -216,7 +218,7 @@ public class BookReadActivity extends ImageHavingActivity {
     }
 
     private void retrievePage(int page) {
-        if (! checkPageBound(page)) return;
+        if (!checkPageBound(page)) return;
 
         String name = filenameForPage(page);
         Log.d(TAG, "retrieving page = " + name);
@@ -226,14 +228,14 @@ public class BookReadActivity extends ImageHavingActivity {
     }
 
     public void nextPage() {
-        if (! checkPageBound(currentPage+1)) return;
+        if (!checkPageBound(currentPage + 1)) return;
         currentPage++;
         retrievePage(currentPage);
         retrievePage(currentPage + 1);
     }
 
     private void prevPage() {
-        if (! checkPageBound(currentPage-1)) return;
+        if (!checkPageBound(currentPage - 1)) return;
         currentPage--;
         retrievePage(currentPage);
         retrievePage(currentPage - 1);
@@ -243,7 +245,7 @@ public class BookReadActivity extends ImageHavingActivity {
     public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
         setProgressBarIndeterminateVisibility(false);
 
-        ImageView iv = (ImageView)findViewById(R.id.imageView);
+        ImageView iv = (ImageView) findViewById(R.id.imageView);
         String name = filenameForPage(currentPage);
 
         if (result.getMetadata().equals(allMetadata.get(name))) {
@@ -264,7 +266,7 @@ public class BookReadActivity extends ImageHavingActivity {
                     .setPositiveButton("Go", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            EditText et = (EditText)customView.findViewById(R.id.page_to_go);
+                            EditText et = (EditText) customView.findViewById(R.id.page_to_go);
                             int page = Integer.parseInt(et.getText().toString());
                             currentPage = page;
                             retrievePage(page);
@@ -314,7 +316,7 @@ public class BookReadActivity extends ImageHavingActivity {
             case R.id.action_show_bookmark:
                 Intent bookmarkActivity = new Intent(this, BookmarkActivity.class);
                 bookmarkActivity.putExtra("parseObjectId", this.parseObject.getObjectId());
-                startActivity(bookmarkActivity);
+                startActivityForResult(bookmarkActivity, JUMP_TO_PAGE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -323,5 +325,9 @@ public class BookReadActivity extends ImageHavingActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == JUMP_TO_PAGE) {
             int pageTo = data.getIntExtra("page", currentPage);
+            currentPage = pageTo;
+            retrievePage(pageTo);
 
         }
+    }
+}

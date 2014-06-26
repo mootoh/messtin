@@ -72,13 +72,15 @@ public class BookmarkActivity extends Activity {
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
                         ListView listView = (ListView) parent;
-                        // クリックされたアイテムを取得します
                         String item = (String) listView.getItemAtPosition(position);
                         String[] strs = item.split("\\s");
                         int page = Integer.parseInt(strs[1]);
 //                        Toast.makeText(BookmarkActivity.this, item, Toast.LENGTH_LONG).show();
                         Log.d(TAG, "clicked page = " + page);
-
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("page", page);
+                        setResult(BookReadActivity.JUMP_TO_PAGE, resultIntent);
+                        finish();
                     }
                 });
             }
