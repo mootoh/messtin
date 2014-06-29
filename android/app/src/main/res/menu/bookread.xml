@@ -12,6 +12,10 @@
         android:icon="@drawable/ic_plusone_medium_off_client"
         android:showAsAction="always"
         />
+    <item android:id="@+id/action_show_thumbnails"
+        android:title="@string/action_show_thumbnails"
+        android:orderInCategory="100"
+        />
     <item android:id="@+id/action_save_bookmark"
         android:title="@string/action_save_bookmark"
         android:orderInCategory="100"

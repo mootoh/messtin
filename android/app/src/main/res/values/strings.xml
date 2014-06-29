@@ -6,5 +6,9 @@
     <string name="action_goto_page">Goto...</string>
     <string name="action_save_bookmark">Bookmark</string>
     <string name="action_show_bookmark">Show Bookmarks</string>
+    <string name="title_activity_bookmark">BookmarkActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_thumbnail">ThumbnailActivity</string>
+    <string name="action_show_thumbnails">Thumbnail</string>
 
 </resources>

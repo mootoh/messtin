@@ -318,6 +318,11 @@ public class BookReadActivity extends ImageHavingActivity {
                 bookmarkActivity.putExtra("parseObjectId", this.parseObject.getObjectId());
                 startActivityForResult(bookmarkActivity, JUMP_TO_PAGE);
                 return true;
+            case R.id.action_show_thumbnails:
+                Intent thumbnail = new Intent(this, ThumbnailActivity.class);
+                thumbnail.putExtra("parentDriveId", driveId);
+                startActivityForResult(thumbnail, JUMP_TO_PAGE);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

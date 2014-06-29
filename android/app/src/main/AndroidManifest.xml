@@ -55,6 +55,10 @@
             android:name=".BookmarkActivity"
             android:label="@string/title_activity_bookmark" >
         </activity>
+        <activity
+            android:name=".ThumbnailActivity"
+            android:label="@string/title_activity_thumbnail" >
+        </activity>
     </application>
 
 </manifest>

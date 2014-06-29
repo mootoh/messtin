@@ -28,7 +28,7 @@ abstract class ImageHavingActivity extends Activity {
 
 class RetrieveDriveFileContentsAsyncTaskResult {
     private final Bitmap bm;
-    private final Metadata md;
+    protected final Metadata md;
 
     RetrieveDriveFileContentsAsyncTaskResult(Bitmap bm, Metadata md) {
         this.bm = bm;
