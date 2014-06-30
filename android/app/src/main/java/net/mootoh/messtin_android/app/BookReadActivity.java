@@ -323,8 +323,15 @@ public class BookReadActivity extends ImageHavingActivity {
                 thumbnail.putExtra("parentDriveId", driveId);
                 startActivityForResult(thumbnail, JUMP_TO_PAGE);
                 return true;
+            case R.id.action_pin_this_book:
+                pinThisBook();
+                Toast.makeText(this, "Pinned", Toast.LENGTH_SHORT).show();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void pinThisBook() {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
