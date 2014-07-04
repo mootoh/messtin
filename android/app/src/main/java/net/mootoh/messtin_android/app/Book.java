@@ -27,10 +27,11 @@ import java.util.concurrent.ExecutionException;
  * Created by mootoh on 5/12/14.
  */
 //class Book implements Parcelable {
-class Book {
+class Book implements RetrieveDriveFileContentsAsyncTaskDelegate {
     static final private String TAG = "Book";
 
     final String title;
+    private BookDelegate delegate;
     DriveId rootDriveId;
     final BooklistActivity activity;
     Metadata coverMetadata;
@@ -60,10 +61,18 @@ class Book {
                 }
 
                 Log.d(TAG, "cover image id = " + coverMetadata.getDriveId().toString());
-                task = new RetrieveDriveFileContentsAsyncTask(activity, client);
-                task.execute(coverMetadata);
             }
         });
+    }
+
+    @Override
+    public void onFinished(RetrieveDriveFileContentsAsyncTaskResult result) {
+        delegate.gotCoverImage(this, result.getBitamp());
+    }
+
+    interface BookDelegate {
+        public void gotDriveId(Book aBook, DriveId driveId);
+        public void gotCoverImage(Book aBook, Bitmap coverImage);
     }
 
     Book(Metadata md, final GoogleApiClient client, final BooklistActivity activity) {
@@ -71,20 +80,51 @@ class Book {
         rootDriveId = md.getDriveId();
         this.activity = activity;
         initialize(client, activity);
-
     }
 
-    Book(ParseObject object, final GoogleApiClient client, final BooklistActivity activity) {
+    Book(ParseObject object, final GoogleApiClient client, final BooklistActivity activity, final BookDelegate delegate) {
         title = object.getString("title");
         this.activity = activity;
         this.parseObject = object;
+        this.delegate = delegate;
+        final Book self = this;
 
         com.google.android.gms.common.api.PendingResult<com.google.android.gms.drive.DriveApi.DriveIdResult> pr = Drive.DriveApi.fetchDriveId(client, object.getString("gd_id"));
         pr.setResultCallback(new ResultCallback<DriveApi.DriveIdResult>() {
             @Override
             public void onResult(DriveApi.DriveIdResult driveIdResult) {
                 rootDriveId = driveIdResult.getDriveId();
-                initialize(client, activity);
+                delegate.gotDriveId(self, rootDriveId);
+
+                Query query = new Query.Builder()
+                        .addFilter(Filters.eq(SearchableField.TITLE, "cover.jpg"))
+                        .addFilter(Filters.in(SearchableField.PARENTS, rootDriveId))
+                        .build();
+
+                Drive.DriveApi.query(client, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+                    @Override
+                    public void onResult(DriveApi.MetadataBufferResult result) {
+                        if (!result.getStatus().isSuccess()) {
+                            Log.e(TAG, "failed in retrieving cover image");
+                            delegate.gotCoverImage(self, null);
+                            return;
+                        }
+                        MetadataBuffer mb = result.getMetadataBuffer();
+                        for (Metadata md : mb) {
+                            coverMetadata = md;
+                            break;
+                        }
+                        if (coverMetadata == null) {
+                            return;
+                        }
+
+                        Log.d(TAG, "cover image id = " + coverMetadata.getDriveId().toString());
+
+                        task = new RetrieveDriveFileContentsAsyncTask(activity, client);
+                        task.delegate = self;
+                        task.execute(coverMetadata);
+                    }
+                });
             }
         });
     }
@@ -105,6 +145,7 @@ class Book {
         }
         return null;
     }
+
 /*
     @Override
     public int describeContents() {

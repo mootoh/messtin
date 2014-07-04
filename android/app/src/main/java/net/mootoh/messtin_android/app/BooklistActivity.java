@@ -13,6 +13,8 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,7 +36,11 @@ import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 class ImageAdapter extends BaseAdapter {
     final private Context mContext;
@@ -89,7 +95,8 @@ public class BooklistActivity extends ImageHavingActivity {
 
     DriveId messtinFolderId;
     List<Book> books = new ArrayList<Book>();
-    ImageAdapter imageAdapter;
+    SimpleAdapter adapter;
+    List <Map<String, ?>> items = new ArrayList<Map<String, ?>>();
 
     public List<Book> getBooks() {
         return books;
@@ -97,15 +104,30 @@ public class BooklistActivity extends ImageHavingActivity {
 
     @Override
     public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
-        imageAdapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist);
-        imageAdapter = new ImageAdapter(this);
+//        imageAdapter = new ImageAdapter(this);
 
+        adapter = new SimpleAdapter(this, items, R.layout.bookinfo, new String[] { "image", "title"}, new int[] { R.id.image, R.id.title});
+        SimpleAdapter.ViewBinder viewBinder = new SimpleAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Object data, String textRep) {
+                if (view.getId() == R.id.title) {
+                    ((TextView)view).setText((String)data);
+                    return true;
+                } else if (view.getId() == R.id.image) {
+                    ((ImageView)view).setImageBitmap((Bitmap)data);
+                    return true;
+                }
+                return false;
+            }
+        };
+        ((SimpleAdapter)adapter).setViewBinder(viewBinder);
         setupParse();
         setupGridView();
         setupGDrive();
@@ -126,11 +148,25 @@ public class BooklistActivity extends ImageHavingActivity {
                     Log.d(TAG, "failed in retrieving Parse objects from local store: " + e.getMessage());
                     return;
                 }
-                for (ParseObject obj: parseObjects) {
-                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
+                for (ParseObject obj : parseObjects) {
+                    final Map<String, Object> item = new HashMap<String, Object>();
+                    final Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self, new Book.BookDelegate() {
+                        @Override
+                        public void gotDriveId(Book aBook, DriveId driveId) {
+                            item.put("title", aBook.title);
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void gotCoverImage(Book aBook, Bitmap coverImage) {
+                            item.put("image", coverImage);
+                            items.add(item);
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
                     books.add(book);
+                    adapter.notifyDataSetChanged();
                 }
-                imageAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -146,7 +182,7 @@ public class BooklistActivity extends ImageHavingActivity {
                     Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
                     return;
                 }
-                for (ParseObject obj: parseObjects) {
+                for (ParseObject obj : parseObjects) {
                     boolean found = false;
                     for (Book book : books) {
                         if (book.parseObject.equals(obj)) {
@@ -167,11 +203,12 @@ public class BooklistActivity extends ImageHavingActivity {
                             Log.d(TAG, "done pinning to local store");
                         }
                     });
-
+/* FIXME
                     Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
                     books.add(book);
+                    */
                 }
-                imageAdapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -209,7 +246,7 @@ public class BooklistActivity extends ImageHavingActivity {
 
     private void setupGridView() {
         GridView gridView = (GridView) findViewById(R.id.gridview);
-        gridView.setAdapter(imageAdapter);
+        gridView.setAdapter(adapter);
         final BooklistActivity self = this;
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

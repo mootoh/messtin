@@ -26,6 +26,10 @@ abstract class ImageHavingActivity extends Activity {
     public abstract void onChanged(RetrieveDriveFileContentsAsyncTaskResult result);
 }
 
+interface RetrieveDriveFileContentsAsyncTaskDelegate {
+    public void onFinished(RetrieveDriveFileContentsAsyncTaskResult result);
+}
+
 class RetrieveDriveFileContentsAsyncTaskResult {
     private final Bitmap bm;
     protected final Metadata md;
@@ -50,6 +54,7 @@ final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<Metadata, Boole
     static final String TAG = "RetrieveDriveFileContentsAsyncTask";
     final ImageHavingActivity activity;
     final GoogleApiClient client;
+    RetrieveDriveFileContentsAsyncTaskDelegate delegate;
 
     public RetrieveDriveFileContentsAsyncTask(ImageHavingActivity activity, GoogleApiClient client) {
         this.activity = activity;
@@ -149,5 +154,6 @@ final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<Metadata, Boole
         }
 //        Log.d(TAG, "File contents: " + result);
         activity.onChanged(result);
+        delegate.onFinished(result);
     }
 }
