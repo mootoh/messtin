@@ -41,6 +41,7 @@
 		92BF5FD718D4560E00D41BAC /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */; };
 		92E2B0C2194903AA0071AADF /* NMBookInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92E2B0C0194903AA0071AADF /* NMBookInfoViewController.m */; };
 		92E2B0C3194903AA0071AADF /* NMBookInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 92E2B0C1194903AA0071AADF /* NMBookInfoViewController.xib */; };
+		FCDC0546196727EE00B3C8AB /* NMCacheDaemon.m in Sources */ = {isa = PBXBuildFile; fileRef = FCDC0545196727EE00B3C8AB /* NMCacheDaemon.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,8 @@
 		92E2B0BF194903AA0071AADF /* NMBookInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMBookInfoViewController.h; sourceTree = "<group>"; };
 		92E2B0C0194903AA0071AADF /* NMBookInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMBookInfoViewController.m; sourceTree = "<group>"; };
 		92E2B0C1194903AA0071AADF /* NMBookInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NMBookInfoViewController.xib; sourceTree = "<group>"; };
+		FCDC0544196727EE00B3C8AB /* NMCacheDaemon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMCacheDaemon.h; sourceTree = "<group>"; };
+		FCDC0545196727EE00B3C8AB /* NMCacheDaemon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMCacheDaemon.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +209,8 @@
 				92A9C4C618AF4913005C872E /* Supporting Files */,
 				920643CC18D4925400033792 /* NMGoogleDrive.h */,
 				920643CD18D4925400033792 /* NMGoogleDrive.m */,
+				FCDC0544196727EE00B3C8AB /* NMCacheDaemon.h */,
+				FCDC0545196727EE00B3C8AB /* NMCacheDaemon.m */,
 			);
 			path = "messtin-iOS";
 			sourceTree = "<group>";
@@ -351,6 +356,7 @@
 				92A9C4FE18B057FA005C872E /* NMBook.m in Sources */,
 				926113DA193E0E10004ADF8E /* NMSettingViewController.m in Sources */,
 				920643CE18D4925400033792 /* NMGoogleDrive.m in Sources */,
+				FCDC0546196727EE00B3C8AB /* NMCacheDaemon.m in Sources */,
 				92E2B0C2194903AA0071AADF /* NMBookInfoViewController.m in Sources */,
 				92A9C4CC18AF4913005C872E /* main.m in Sources */,
 				92A9C4D018AF4913005C872E /* NMAppDelegate.m in Sources */,

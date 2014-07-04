@@ -8,7 +8,5 @@
 
 #import <UIKit/UIKit.h>
 
-@interface NMSettingViewController : UIViewController <UITextFieldDelegate>
-@property (weak, nonatomic) IBOutlet UITextField *maxCacheTextField;
-
+@interface NMSettingViewController : UITableViewController
 @end

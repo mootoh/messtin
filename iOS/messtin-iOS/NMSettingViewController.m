@@ -7,37 +7,26 @@
 //
 
 #import "NMSettingViewController.h"
-
+#import "NMCacheDaemon.h"
 @interface NMSettingViewController ()
+@property (weak, nonatomic) IBOutlet UISegmentedControl *cacheLimitSegmentedControl;
 
 @end
 
 @implementation NMSettingViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
-
-    NSInteger size = [[NSUserDefaults standardUserDefaults] integerForKey:k_MAXIMUM_CACHE_SIZE_KEY];
-    self.maxCacheTextField.text = [NSString stringWithFormat:@"%d", size];
+    [self.cacheLimitSegmentedControl addTarget:self action:@selector(cacheSizeChanged:) forControlEvents:UIControlEventValueChanged];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    NSInteger size = [self.maxCacheTextField.text integerValue];
-    [[NSUserDefaults standardUserDefaults] setInteger:size forKey:k_MAXIMUM_CACHE_SIZE_KEY];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+//    NSInteger size = [self.maxCacheTextField.text integerValue];
+//    [[NSUserDefaults standardUserDefaults] setInteger:size forKey:k_MAXIMUM_CACHE_SIZE_KEY];
+//    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void)didReceiveMemoryWarning
@@ -46,17 +35,10 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void) cacheSizeChanged:(id)sender
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    UISegmentedControl *cacheSizeSegments = (UISegmentedControl *)sender;
+    [[NSUserDefaults standardUserDefaults] setInteger:cacheSizeSegments.selectedSegmentIndex forKey:k_CACHE_SIZE_TYPE];
+    [NMCacheDaemon updateLimit];
 }
-*/
-
-#pragma mark - UITextFieldDelegate
-
 @end
