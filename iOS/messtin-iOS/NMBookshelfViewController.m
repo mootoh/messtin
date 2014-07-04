@@ -19,6 +19,7 @@ static NSString *kCellID = @"bookCellId";
 
 @interface NMBookshelfViewController ()
 @property NSIndexPath *prevIndexPath;
+@property UIPopoverController *popoverForBook;
 - (void) setupParse;
 @end
 
@@ -61,6 +62,7 @@ static NSString *kCellID = @"bookCellId";
 
     UIPopoverController *pc = [[UIPopoverController alloc] initWithContentViewController:bivc];
     [pc presentPopoverFromRect:inRect inView:self.collectionView permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+    self.popoverForBook = pc;
 }
 
 - (void) onAuthorized {
