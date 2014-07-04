@@ -41,7 +41,6 @@
 		92BF5FD718D4560E00D41BAC /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BF5FD618D4560E00D41BAC /* SystemConfiguration.framework */; };
 		92E2B0C2194903AA0071AADF /* NMBookInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92E2B0C0194903AA0071AADF /* NMBookInfoViewController.m */; };
 		92E2B0C3194903AA0071AADF /* NMBookInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 92E2B0C1194903AA0071AADF /* NMBookInfoViewController.xib */; };
-		B2CB580E99064F1DBA9A7203 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 052569887D9945CEBB334D13 /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,7 +54,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		052569887D9945CEBB334D13 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		920643CC18D4925400033792 /* NMGoogleDrive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMGoogleDrive.h; sourceTree = "<group>"; };
 		920643CD18D4925400033792 /* NMGoogleDrive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMGoogleDrive.m; sourceTree = "<group>"; };
 		920643CF18D49BB000033792 /* GTMOAuth2ViewTouch.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = GTMOAuth2ViewTouch.xib; path = "google-api-objectivec-client/Source/OAuth2/Touch/GTMOAuth2ViewTouch.xib"; sourceTree = SOURCE_ROOT; };
@@ -104,7 +102,6 @@
 		92E2B0BF194903AA0071AADF /* NMBookInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMBookInfoViewController.h; sourceTree = "<group>"; };
 		92E2B0C0194903AA0071AADF /* NMBookInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMBookInfoViewController.m; sourceTree = "<group>"; };
 		92E2B0C1194903AA0071AADF /* NMBookInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NMBookInfoViewController.xib; sourceTree = "<group>"; };
-		DB93FF1172DF47EF9326A878 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,7 +115,6 @@
 				924B4C7B1941FF0E00A7708C /* CoreLocation.framework in Frameworks */,
 				92A9C4C018AF4913005C872E /* Foundation.framework in Frameworks */,
 				92BF5FD118D4524B00D41BAC /* libGTLTouchStaticLib.a in Frameworks */,
-				B2CB580E99064F1DBA9A7203 /* libPods.a in Frameworks */,
 				924B4C7D1941FF1900A7708C /* libz.dylib in Frameworks */,
 				92BF5FD518D4560000D41BAC /* MobileCoreServices.framework in Frameworks */,
 				924B4C751941FED700A7708C /* Parse.framework in Frameworks */,
@@ -150,7 +146,6 @@
 				92A9C4E418AF4913005C872E /* messtin-iOSTests */,
 				92A9C4BE18AF4913005C872E /* Frameworks */,
 				92A9C4BD18AF4913005C872E /* Products */,
-				DB93FF1172DF47EF9326A878 /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -184,7 +179,6 @@
 				92A9C4C118AF4913005C872E /* CoreGraphics.framework */,
 				92A9C4C318AF4913005C872E /* UIKit.framework */,
 				92A9C4DE18AF4913005C872E /* XCTest.framework */,
-				052569887D9945CEBB334D13 /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -254,11 +248,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 92A9C4EE18AF4913005C872E /* Build configuration list for PBXNativeTarget "Messtin" */;
 			buildPhases = (
-				68FE6DADEE0A47FCA0BF37F5 /* Check Pods Manifest.lock */,
 				92A9C4B818AF4913005C872E /* Sources */,
 				92A9C4B918AF4913005C872E /* Frameworks */,
 				92A9C4BA18AF4913005C872E /* Resources */,
-				B257E7D933DC4A82AF5C0E5A /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -347,39 +339,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		68FE6DADEE0A47FCA0BF37F5 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		B257E7D933DC4A82AF5C0E5A /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		92A9C4B818AF4913005C872E /* Sources */ = {
@@ -520,7 +479,6 @@
 		};
 		92A9C4EF18AF4913005C872E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB93FF1172DF47EF9326A878 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -547,7 +505,6 @@
 		};
 		92A9C4F018AF4913005C872E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DB93FF1172DF47EF9326A878 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
