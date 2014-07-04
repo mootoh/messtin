@@ -28,9 +28,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    UITextView *tv = (UITextView *)[self.view viewWithTag:1];
+    UILabel *titleLabel = (UILabel *)[self.view viewWithTag:1];
+    titleLabel.text = self.book.title;
+    UITextView *tv = (UITextView *)[self.view viewWithTag:2];
     tv.text = self.book.parseObject[@"description"];
-    // Do any additional setup after loading the view from its nib.
+
+    UISwitch *pinSwitch = (UISwitch *)[self.view viewWithTag:3];
+    [pinSwitch addTarget:self action:@selector(togglePin:) forControlEvents:UIControlEventValueChanged];
 }
 
 - (void)didReceiveMemoryWarning
@@ -39,15 +43,14 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void) togglePin:(id)sender
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    UISwitch *pinSwitch = (UISwitch *)sender;
+    if (pinSwitch.on) {
+        // mark this book as "pinned": prevent system from purging this book.
+    } else {
+        // unpin this book.
+    }
 }
-*/
 
 @end
