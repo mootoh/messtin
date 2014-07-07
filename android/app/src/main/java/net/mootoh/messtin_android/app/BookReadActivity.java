@@ -1,5 +1,6 @@
 package net.mootoh.messtin_android.app;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -42,12 +43,12 @@ import java.util.Map;
 /**
  * Created by mootoh on 5/11/14.
  */
-public class BookReadActivity extends ImageHavingActivity {
+public class BookReadActivity extends Activity implements RetrieveDriveFileContentsAsyncTaskDelegate {
     private static final String TAG = "BookReadActivity";
     private static final String KEY_PAGE_NUMBER = "KEY_PAGE_NUMBER";
     public static final int JUMP_TO_PAGE = 2;
 
-    Map<String, Metadata> allMetadata = new HashMap<String, Metadata>();
+    Map<String, DriveId> allDriveId = new HashMap<String, DriveId>();
     int currentPage = 1;
     DriveId driveId;
     String title;
@@ -75,7 +76,7 @@ public class BookReadActivity extends ImageHavingActivity {
         updateTitle();
 
         setup(driveId);
-
+/*
         ParseQuery parseQ = ParseQuery.getQuery("Book");
         parseQ.getInBackground(parseObjectId, new GetCallback() {
             @Override
@@ -87,6 +88,7 @@ public class BookReadActivity extends ImageHavingActivity {
                 parseObject = po;
             }
         });
+*/
 
         final TouchImageView iv = (TouchImageView) findViewById(R.id.imageView);
         iv.setMaxZoom(5);
@@ -189,14 +191,15 @@ public class BookReadActivity extends ImageHavingActivity {
             @Override
             public void onResult(DriveApi.MetadataBufferResult result) {
                 if (!result.getStatus().isSuccess()) {
-                    Log.d("@@@", "failed in retrieving cover image");
+                    Log.d("@@@", "failed in retrieving pages for book: " + title);
                     return;
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();
                 for (Metadata md : mb) {
 //                    Log.d(TAG, "image " + md.getTitle() + " id = " + md.getDriveId().toString());
-                    allMetadata.put(md.getTitle(), md);
+                    allDriveId.put(md.getTitle(), md.getDriveId());
                 }
+                mb.close();
 
                 retrievePage(currentPage);
             }
@@ -204,7 +207,7 @@ public class BookReadActivity extends ImageHavingActivity {
     }
 
     private boolean checkPageBound(int page) {
-        if (page <= 0 || page > allMetadata.size()) {
+        if (page <= 0 || page > allDriveId.size()) {
             Log.d(TAG, "out of bound: page=" + page);
             return false;
         }
@@ -222,9 +225,11 @@ public class BookReadActivity extends ImageHavingActivity {
 
         String name = filenameForPage(page);
         Log.d(TAG, "retrieving page = " + name);
-        RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(this, GDriveHelper.getInstance().getClient());
+        RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), this.getCacheDir());
+        task.setPage(page);
+        task.delegate = this;
         setProgressBarIndeterminateVisibility(true);
-        task.execute(allMetadata.get(name));
+        task.execute(allDriveId.get(name));
     }
 
     public void nextPage() {
@@ -242,13 +247,19 @@ public class BookReadActivity extends ImageHavingActivity {
     }
 
     @Override
-    public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
+    public void onError(RetrieveDriveFileContentsAsyncTask task, Error error) {
+        setProgressBarIndeterminateVisibility(false);
+
+    }
+
+    @Override
+    public void onFinished(RetrieveDriveFileContentsAsyncTask task, RetrieveDriveFileContentsAsyncTaskResult result) {
         setProgressBarIndeterminateVisibility(false);
 
         ImageView iv = (ImageView) findViewById(R.id.imageView);
         String name = filenameForPage(currentPage);
 
-        if (result.getMetadata().equals(allMetadata.get(name))) {
+        if (task.getPage() == currentPage) {
             iv.setImageBitmap(result.getBitamp());
             updateTitle();
         }
