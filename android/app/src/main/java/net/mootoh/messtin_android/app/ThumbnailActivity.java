@@ -1,5 +1,6 @@
 package net.mootoh.messtin_android.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -68,7 +69,7 @@ class ThumbnailImageAdapter extends BaseAdapter {
     }
 }
 
-public class ThumbnailActivity extends ImageHavingActivity {
+public class ThumbnailActivity extends Activity {
     static final private String TAG = "ThumbnailActivity";
     HashMap <Integer, Bitmap> bitmaps = new HashMap<Integer, Bitmap>();
 
@@ -108,8 +109,9 @@ public class ThumbnailActivity extends ImageHavingActivity {
                     public void onResult(DriveApi.MetadataBufferResult result2) {
                         for (Metadata md : result2.getMetadataBuffer()) {
                             Log.d(TAG, "thumbnail: " + md.getTitle());
-                            RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(self, GDriveHelper.getInstance().getClient());
-                            task.execute(md);
+                            // FIXME
+//                            RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(self, GDriveHelper.getInstance().getClient());
+//                            task.execute(md);
                         }
                     }
                 });
@@ -151,14 +153,12 @@ public class ThumbnailActivity extends ImageHavingActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onChanged(RetrieveDriveFileContentsAsyncTaskResult result) {
-        String title = result.md.getTitle();
-        int page = Integer.parseInt(title.substring(0, 3));
-        Log.d(TAG, "page number: " + page);
-        bitmaps.put(new Integer(page), result.getBitamp());
-
-        GridView gridView = (GridView) findViewById(R.id.gridview);
-        ((BaseAdapter)gridView.getAdapter()).notifyDataSetChanged();
-    }
+        // FIXME
+//        String title = result.md.getTitle();
+//        int page = Integer.parseInt(title.substring(0, 3));
+//        Log.d(TAG, "page number: " + page);
+//        bitmaps.put(new Integer(page), result.getBitamp());
+//
+//        GridView gridView = (GridView) findViewById(R.id.gridview);
+//        ((BaseAdapter)gridView.getAdapter()).notifyDataSetChanged();
 }

@@ -11,6 +11,8 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
@@ -27,80 +29,119 @@ import java.util.concurrent.ExecutionException;
  * Created by mootoh on 5/12/14.
  */
 //class Book implements Parcelable {
-class Book implements RetrieveDriveFileContentsAsyncTaskDelegate {
+public class Book {
     static final private String TAG = "Book";
 
     final String title;
-    private BookDelegate delegate;
     DriveId rootDriveId;
     final BooklistActivity activity;
     Metadata coverMetadata;
     List<Metadata> pages;
     RetrieveDriveFileContentsAsyncTask task;
     ParseObject parseObject;
+    private Bitmap coverBitmap;
+
+    public Book(String title) {
+        this.title = title;
+        this.activity = null;
+    }
+
+    public Book(String title, DriveId driveId) {
+        this.title = title;
+        this.rootDriveId = driveId;
+        this.activity = null;
+    }
 
     private void initialize(final GoogleApiClient client, final BooklistActivity activity) {
+        final Book self = this;
+
         Query query = new Query.Builder()
                 .addFilter(Filters.eq(SearchableField.TITLE, "cover.jpg"))
-                .addFilter(Filters.in(SearchableField.PARENTS, rootDriveId))
+                .build();
+
+        DriveFolder folder = Drive.DriveApi.getFolder(client, rootDriveId);
+        folder.queryChildren(client, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+            @Override
+            public void onResult(DriveApi.MetadataBufferResult result) {
+                Log.d(TAG, "got cover for " + title);
+
+                if (!result.getStatus().isSuccess()) {
+                    Log.e(TAG, "failed in retrieving cover image");
+                    return;
+                }
+                MetadataBuffer mb = result.getMetadataBuffer();
+                Log.d(TAG, "book cover count = " + mb.getCount());
+
+                for (Metadata md : mb) {
+                    Log.d(TAG, "book cover metadata for " + title);
+                }
+                return;
+//                coverMetadata = mb.get(0);
+//                DriveId coverImageDriveId = coverMetadata.getDriveId();
+//                mb.close();
+//
+//                Log.d(TAG, "cover image id = " + coverImageDriveId.toString());
+                /*
+                task = new RetrieveDriveFileContentsAsyncTask(activity, client);
+                task.delegate = self;
+                task.execute(coverMetadata.getDriveId());
+                */
+
+                /*
+                DriveFile file = Drive.DriveApi.getFile(client, coverImageDriveId);
+                file.openContents(client, DriveFile.MODE_READ_ONLY, null).setResultCallback(new ResultCallback<DriveApi.ContentsResult>() {
+                    @Override
+                    public void onResult(DriveApi.ContentsResult contentsResult) {
+                        Log.d(TAG, "got cover image file for " + title);
+
+                    }
+                });
+                */
+            }
+        });
+    }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    Book(String title, DriveId driveId, final GoogleApiClient client, final BooklistActivity activity) {
+        this.title = title;
+        this.rootDriveId = driveId;
+        this.activity = activity;
+        initialize(client, activity);
+    }
+
+    Book(ParseObject object, DriveId messtinDriveId, final GoogleApiClient client, final BooklistActivity activity) {
+        title = object.getString("title");
+        this.activity = activity;
+        this.parseObject = object;
+        /*
+        final Book self = this;
+
+
+        Query query = new Query.Builder()
+                .addFilter(Filters.eq(SearchableField.TITLE, title))
+                .addFilter(Filters.in(SearchableField.PARENTS, messtinDriveId))
                 .build();
 
         Drive.DriveApi.query(client, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
             public void onResult(DriveApi.MetadataBufferResult result) {
                 if (!result.getStatus().isSuccess()) {
-                    Log.e(TAG, "failed in retrieving cover image");
+                    Log.e(TAG, "failed in retrieving book root DriveId");
                     return;
                 }
-                MetadataBuffer mb = result.getMetadataBuffer();
-                try {
-                    coverMetadata = mb.get(0);
-                } catch (IllegalStateException ex) {
-                    ex.printStackTrace();
-                    return;
-                }
-
-                Log.d(TAG, "cover image id = " + coverMetadata.getDriveId().toString());
-            }
-        });
-    }
-
-    @Override
-    public void onFinished(RetrieveDriveFileContentsAsyncTaskResult result) {
-        delegate.gotCoverImage(this, result.getBitamp());
-    }
-
-    interface BookDelegate {
-        public void gotDriveId(Book aBook, DriveId driveId);
-        public void gotCoverImage(Book aBook, Bitmap coverImage);
-    }
-
-    Book(Metadata md, final GoogleApiClient client, final BooklistActivity activity) {
-        title = md.getTitle();
-        rootDriveId = md.getDriveId();
-        this.activity = activity;
-        initialize(client, activity);
-    }
-
-    Book(ParseObject object, final GoogleApiClient client, final BooklistActivity activity, final BookDelegate delegate) {
-        title = object.getString("title");
-        this.activity = activity;
-        this.parseObject = object;
-        this.delegate = delegate;
-        final Book self = this;
-
-        com.google.android.gms.common.api.PendingResult<com.google.android.gms.drive.DriveApi.DriveIdResult> pr = Drive.DriveApi.fetchDriveId(client, object.getString("gd_id"));
-        pr.setResultCallback(new ResultCallback<DriveApi.DriveIdResult>() {
-            @Override
-            public void onResult(DriveApi.DriveIdResult driveIdResult) {
-                rootDriveId = driveIdResult.getDriveId();
+                Metadata md = result.getMetadataBuffer().get(0);
+                rootDriveId = md.getDriveId();
+                result.getMetadataBuffer().close();
                 delegate.gotDriveId(self, rootDriveId);
 
                 Query query = new Query.Builder()
                         .addFilter(Filters.eq(SearchableField.TITLE, "cover.jpg"))
                         .addFilter(Filters.in(SearchableField.PARENTS, rootDriveId))
                         .build();
-
                 Drive.DriveApi.query(client, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
                     @Override
                     public void onResult(DriveApi.MetadataBufferResult result) {
@@ -109,41 +150,32 @@ class Book implements RetrieveDriveFileContentsAsyncTaskDelegate {
                             delegate.gotCoverImage(self, null);
                             return;
                         }
+                        Log.d(TAG, "status message = " + result.getStatus().getStatusCode());
                         MetadataBuffer mb = result.getMetadataBuffer();
                         for (Metadata md : mb) {
                             coverMetadata = md;
                             break;
                         }
                         if (coverMetadata == null) {
+                            Log.d(TAG, "failed in retrieving cover metadata");
+                            mb.close();
                             return;
                         }
-
                         Log.d(TAG, "cover image id = " + coverMetadata.getDriveId().toString());
-
                         task = new RetrieveDriveFileContentsAsyncTask(activity, client);
                         task.delegate = self;
-                        task.execute(coverMetadata);
+                        task.execute(coverMetadata.getDriveId());
                     }
                 });
             }
         });
+        */
     }
 
     public Metadata getCoverMetadata() { return coverMetadata; }
 
-    public Bitmap getCoverBitmap() {
-        if (task.getStatus() != AsyncTask.Status.FINISHED) {
-            Log.d(TAG, "download still in progress...");
-            return null;
-        }
-        try {
-            return task.get().getBitamp();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void setCoverBitmap(Bitmap coverBitmap) {
+        this.coverBitmap = coverBitmap;
     }
 
 /*

@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveFile;
@@ -17,109 +18,86 @@ import com.google.api.client.util.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-abstract class ImageHavingActivity extends Activity {
-    public abstract void onChanged(RetrieveDriveFileContentsAsyncTaskResult result);
-}
-
 interface RetrieveDriveFileContentsAsyncTaskDelegate {
-    public void onFinished(RetrieveDriveFileContentsAsyncTaskResult result);
+    public void onError(RetrieveDriveFileContentsAsyncTask task, Error error);
+    public void onFinished(RetrieveDriveFileContentsAsyncTask task, RetrieveDriveFileContentsAsyncTaskResult result);
 }
 
 class RetrieveDriveFileContentsAsyncTaskResult {
     private final Bitmap bm;
-    protected final Metadata md;
 
-    RetrieveDriveFileContentsAsyncTaskResult(Bitmap bm, Metadata md) {
+    RetrieveDriveFileContentsAsyncTaskResult(Bitmap bm) {
         this.bm = bm;
-        this.md = md;
     }
 
     public Bitmap getBitamp() {
         return bm;
     }
-
-    public Metadata getMetadata() {
-        return md;
-    }
 }
 /**
  * Created by mootoh on 5/12/14.
  */
-final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<Metadata, Boolean, RetrieveDriveFileContentsAsyncTaskResult> {
+final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<DriveId, Boolean, RetrieveDriveFileContentsAsyncTaskResult> {
     static final String TAG = "RetrieveDriveFileContentsAsyncTask";
-    final ImageHavingActivity activity;
-    final GoogleApiClient client;
+    private final GoogleApiClient client;
+    private final File cacheDir;
     RetrieveDriveFileContentsAsyncTaskDelegate delegate;
+    private Error error;
+    private int page;
 
-    public RetrieveDriveFileContentsAsyncTask(ImageHavingActivity activity, GoogleApiClient client) {
-        this.activity = activity;
+    public RetrieveDriveFileContentsAsyncTask(final GoogleApiClient client, final File cacheDir) {
         this.client = client;
+        this.cacheDir = cacheDir;
     }
 
     @Override
-    protected RetrieveDriveFileContentsAsyncTaskResult doInBackground(Metadata... params) {
+    protected RetrieveDriveFileContentsAsyncTaskResult doInBackground(DriveId... params) {
+        DriveId driveId = params[0];
+
         // check cache
-        if (existInCache(params[0])) {
-            return resultFromCache(params[0]);
+        if (existInCache(driveId)) {
+            return resultFromCache(driveId);
         }
 
-        DriveFile file = Drive.DriveApi.getFile(client, params[0].getDriveId());
+        DriveFile file = Drive.DriveApi.getFile(client, driveId);
         DriveApi.ContentsResult contentsResult = file.openContents(client, DriveFile.MODE_READ_ONLY, null).await();
         if (!contentsResult.getStatus().isSuccess()) {
-            Log.d(TAG, "failed in retrieving the file content");
+            error = new Error("failed in retrieving the file content for " + driveId);
             return null;
         }
-        InputStream is = contentsResult.getContents().getInputStream();
+
+        Log.d(TAG, "got image content for " + driveId);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            IOUtils.copy(is, bos);
+            IOUtils.copy(contentsResult.getContents().getInputStream(), bos);
         } catch (IOException e) {
-            e.printStackTrace();
+            error = new Error("failed in copying downloaded contents: " + e.getMessage());
+            return null;
         }
 
-        InputStream is1 = new ByteArrayInputStream(bos.toByteArray());
-        InputStream is2 = new ByteArrayInputStream(bos.toByteArray());
+        InputStream isForBitmap = new ByteArrayInputStream(bos.toByteArray());
+        InputStream isForCache  = new ByteArrayInputStream(bos.toByteArray());
 
-        /*
-        File outFile = new File(context.getCacheDir(), params[0].toString());
-        FileOutputStream os = null;
-        try {
-            os = new FileOutputStream(outFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        Bitmap bm = BitmapFactory.decodeStream(isForBitmap);
 
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-        int len = 0;
         try {
-            while ((len = is.read(buffer)) != -1) {
-                os.write(buffer, 0, len);
-            }
+            storeToCache(isForCache, params[0]);
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
-        Bitmap bm = BitmapFactory.decodeStream(is1);
-
-        try {
-            storeToCache(is2, params[0]);
-        } catch (IOException e) {
-            e.printStackTrace();
+            error = new Error("failed in storing downloaded contents to cache: " + e.getMessage());
+            return null;
         }
 
         file.discardContents(client, contentsResult.getContents()).await();
-        return new RetrieveDriveFileContentsAsyncTaskResult(bm, params[0]);
+        return new RetrieveDriveFileContentsAsyncTaskResult(bm);
     }
 
-    private void storeToCache(InputStream is, Metadata param) throws IOException {
-        File file = new File(getCacheFileName(param));
+    private void storeToCache(InputStream is, DriveId driveId) throws IOException {
+        File file = new File(getCacheFileName(driveId));
         FileOutputStream os = new FileOutputStream(file);
 
         int bufferSize = 1024;
@@ -131,29 +109,39 @@ final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<Metadata, Boole
         }
     }
 
-    private String getCacheFileName(Metadata param) {
-        return activity.getCacheDir() + "/" + param.getDriveId().getResourceId();
+    private String getCacheFileName(DriveId driveId) {
+        return cacheDir + "/" + driveId.getResourceId();
     }
 
-    private RetrieveDriveFileContentsAsyncTaskResult resultFromCache(Metadata param) {
-        File file = new File(getCacheFileName(param));
-        Bitmap bm = BitmapFactory.decodeFile(getCacheFileName(param));
-        return new RetrieveDriveFileContentsAsyncTaskResult(bm, param);
+    private RetrieveDriveFileContentsAsyncTaskResult resultFromCache(DriveId driveId) {
+        File file = new File(getCacheFileName(driveId));
+        Bitmap bm = BitmapFactory.decodeFile(getCacheFileName(driveId));
+        return new RetrieveDriveFileContentsAsyncTaskResult(bm);
     }
 
-    private boolean existInCache(Metadata param) {
-        File file = new File(getCacheFileName(param));
+    private boolean existInCache(DriveId driveId) {
+        File file = new File(getCacheFileName(driveId));
         return file.exists();
     }
 
     @Override
     protected void onPostExecute(RetrieveDriveFileContentsAsyncTaskResult result) {
+        if (delegate == null)
+            return;
+
         if (result == null) {
-            Log.d(TAG, "Error while reading from the file");
+            delegate.onError(this, error);
             return;
         }
-//        Log.d(TAG, "File contents: " + result);
-        activity.onChanged(result);
-        delegate.onFinished(result);
+
+        delegate.onFinished(this, result);
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getPage() {
+        return page;
     }
 }
