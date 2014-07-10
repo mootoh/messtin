@@ -52,25 +52,9 @@ public class BooklistActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist);
-
         setupAdapter();
-        SimpleAdapter.ViewBinder viewBinder = new SimpleAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Object data, String textRep) {
-                if (view.getId() == R.id.title) {
-                    ((TextView)view).setText((String)data);
-                    return true;
-                } else if (view.getId() == R.id.image) {
-                    ((ImageView)view).setImageBitmap((Bitmap)data);
-                    return true;
-                }
-                return false;
-            }
-        };
-        adapter.setViewBinder(viewBinder);
-
-        setupParse();
         setupGridView();
+        setupParse();
 
         GDriveHelper.createInstance(this, new GoogleApiClient.ConnectionCallbacks() {
             @Override
@@ -152,11 +136,11 @@ public class BooklistActivity extends Activity {
                 String title = (String)item.get("title");
 
                 if (!result.getStatus().isSuccess()) {
-                    Log.d("@@@", "failed in retrieving cover image for " + title);
+                    showError("failed in retrieving cover image for " + title);
                     return;
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();
-                Log.d(TAG, "book cover count = " + mb.getCount());
+                Log.d(TAG, "book " + title + " cover count: " + mb.getCount());
                 if (mb.getCount() < 1) {
                     Log.d(TAG, "no cover image for " + title);
                     return;
@@ -165,11 +149,12 @@ public class BooklistActivity extends Activity {
                 Metadata md = mb.get(0);
                 DriveId driveId = md.getDriveId();
                 mb.close();
+
                 RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), self.getCacheDir());
                 task.delegate = new RetrieveDriveFileContentsAsyncTaskDelegate() {
                     @Override
                     public void onError(RetrieveDriveFileContentsAsyncTask task, Error error) {
-                        Log.d(TAG, "failed in retrieving: " + error.getMessage());
+                        showError("failed in retrieving cover image: " + error.getMessage());
                     }
 
                     @Override
