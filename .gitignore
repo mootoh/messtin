@@ -7,3 +7,4 @@ node_modules
 
 iOS/messtin-iOS/parse_secret.plist
 android/app/src/main/res/values/parse_secret.xml
+android/build
