@@ -10,12 +10,12 @@ function replace_secrets(filename) {
 }
 
 function replace_iOS() {
-    replace_secrets('iOS/messtin-iOS/parse_secret.plist');
+    replace_secrets('../iOS/messtin-iOS/parse_secret.plist');
 }
 
 // for Android
 function replace_android() {
-    replace_secrets('android/app/src/main/res/values/parse_secret.xml');
+    replace_secrets('../android/app/src/main/res/values/parse_secret.xml');
 }
 
 replace_iOS();
