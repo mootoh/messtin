@@ -224,7 +224,7 @@ public class BooklistActivity extends Activity {
         DriveId driveId = DriveId.decodeFromString((String)obj.get("gd_id"));
         task.execute(driveId);
     }
-
+/*
     private void fetchRemoteParseObjects() {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -255,16 +255,15 @@ public class BooklistActivity extends Activity {
                             Log.d(TAG, "done pinning to local store");
                         }
                     });
-/* FIXME
-                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
-                    books.add(book);
-                    */
+//FIXME
+//                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
+//                    books.add(book);
                 }
                 adapter.notifyDataSetChanged();
             }
         });
     }
-
+ */
     private void setupGridView() {
         GridView gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(adapter);
@@ -285,7 +284,7 @@ public class BooklistActivity extends Activity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Book book = books.get(position);
-                Toast toast = Toast.makeText(self, book.parseObject.getString("description"), Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(self, book.getDescription(), Toast.LENGTH_SHORT);
                 toast.show();
 
                 return true;
