@@ -1,11 +1,11 @@
 package net.mootoh.messtin_android.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,9 +44,8 @@ public class BooklistActivity extends Activity {
     final private static int RESOLVE_CONNECTION_REQUEST_CODE = 1;
     final private static String TAG = "BookListActivity";
 
-    DriveId messtinFolderId;
-    List<Book> books = new ArrayList<Book>();
     SimpleAdapter adapter;
+    List<Book> books = new ArrayList<Book>();
     List <Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 
     @Override
@@ -68,63 +67,32 @@ public class BooklistActivity extends Activity {
                 return false;
             }
         };
-        ((SimpleAdapter)adapter).setViewBinder(viewBinder);
+        adapter.setViewBinder(viewBinder);
 
         setupParse();
         setupGridView();
-        final BooklistActivity self = this;
 
         GDriveHelper.createInstance(this, new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(Bundle bundle) {
                 Log.d(TAG, "GDrive connected");
-                Query query = new Query.Builder()
-                        .addFilter(Filters.eq(SearchableField.TITLE, "messtin"))
-                        .addFilter(Filters.eq(SearchableField.TRASHED, false))
-                        .build();
 
-                Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+                fetchLocalParseObjects();
+//                fetchRemoteParseObjects();
+
+                retrieveMesstinFolder(new RetrieveMesstinFolderCallback() {
                     @Override
-                    public void onResult(DriveApi.MetadataBufferResult result) {
-                        if (!result.getStatus().isSuccess()) {
-                            Log.d("@@@", "failed in retrieving messtin dir");
-                            return;
-                        }
-                        MetadataBuffer mb = result.getMetadataBuffer();
-                        messtinFolderId = mb.get(0).getDriveId();
-                        mb.close();
-                        Log.d(TAG, "messtin folder id = " + messtinFolderId.toString());
-//                        fetchLocalParseObjects();
-
-                        DriveFolder messtinFolder = Drive.DriveApi.getFolder(GDriveHelper.getInstance().getClient(), messtinFolderId);
+                    public void onRetrieved(final DriveId driveId) {
+                        DriveFolder messtinFolder = Drive.DriveApi.getFolder(GDriveHelper.getInstance().getClient(), driveId);
                         messtinFolder.listChildren(GDriveHelper.getInstance().getClient()).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
                             @Override
                             public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
                                 MetadataBuffer mb = metadataBufferResult.getMetadataBuffer();
                                 for (Metadata md : mb) {
-                                    Log.d(TAG, "book " + md.getDriveId() + ", title = " + md.getTitle());
                                     final Map<String, Object> item = new HashMap<String, Object>();
-//                                    Book book = new Book(md.getTitle());
                                     item.put("title", md.getTitle());
                                     item.put("driveId", md.getDriveId());
                                     items.add(item);
-                                    /*
-                                    Book book = new Book(md.getTitle(), md.getDriveId(), GDriveHelper.getInstance().getClient(), self, new Book.BookDelegate() {
-                                        @Override
-                                        public void gotDriveId(Book aBook, DriveId driveId) {
-                                            Log.d(TAG, "got book drive id " + driveId);
-                                            item.put("title", aBook.title);
-                                            adapter.notifyDataSetChanged();
-                                        }
-
-                                        @Override
-                                        public void gotCoverImage(Book aBook, Bitmap coverImage) {
-                                            item.put("image", coverImage);
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
-                                    */
-//                                    books.add(book);
                                     adapter.notifyDataSetChanged();
                                 }
                                 mb.close();
@@ -136,14 +104,36 @@ public class BooklistActivity extends Activity {
                         });
                     }
                 });
-
-//                fetchLocalParseObjects();
-//                fetchRemoteParseObjects();
             }
 
             @Override
             public void onConnectionSuspended(int i) {
                 Log.d(TAG, "GDrive onConnetionSuspended");
+            }
+        });
+    }
+
+    private interface RetrieveMesstinFolderCallback {
+        public void onRetrieved(final DriveId driveId);
+    }
+
+    private void retrieveMesstinFolder(final RetrieveMesstinFolderCallback callback) {
+        Query query = new Query.Builder()
+            .addFilter(Filters.eq(SearchableField.TITLE, "messtin"))
+            .addFilter(Filters.eq(SearchableField.TRASHED, false))
+            .build();
+
+        Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+            @Override
+            public void onResult(DriveApi.MetadataBufferResult result) {
+                if (!result.getStatus().isSuccess()) {
+                    showError("Cannot find messtin folder in Google Drive");
+                    return;
+                }
+                MetadataBuffer mb = result.getMetadataBuffer();
+                DriveId rootDriveId = mb.get(0).getDriveId();
+                mb.close();
+                callback.onRetrieved(rootDriveId);
             }
         });
     }
@@ -185,7 +175,6 @@ public class BooklistActivity extends Activity {
                     @Override
                     public void onFinished(RetrieveDriveFileContentsAsyncTask task, RetrieveDriveFileContentsAsyncTaskResult result) {
                         item.put("image", result.getBitamp());
-//                        book.setCoverBitmap(result.getBitamp());
                         adapter.notifyDataSetChanged();
                     }
                 };
@@ -213,42 +202,51 @@ public class BooklistActivity extends Activity {
     }
 
     private void fetchLocalParseObjects() {
-        final BooklistActivity self = this;
-
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
         query.fromLocalDatastore();
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 if (e != null) {
-                    Log.d(TAG, "failed in retrieving Parse objects from local store: " + e.getMessage());
+                    showError("failed in retrieving Parse objects from local store: " + e.getMessage());
                     return;
                 }
                 for (ParseObject obj : parseObjects) {
-                    fetchBook(obj);
+                    fetchCoverImageWithParseObject(obj);
                 }
             }
         });
     }
 
-    private void fetchBook(ParseObject po) {
-        Log.d(TAG, "parseObject " + po.getObjectId());
+    private void fetchCoverImageWithParseObject(ParseObject obj) {
         final Map<String, Object> item = new HashMap<String, Object>();
-        final Book book = new Book(po, messtinFolderId, GDriveHelper.getInstance().getClient(), this);
-        books.add(book);
+        item.put("title", obj.get("title"));
         items.add(item);
-        adapter.notifyDataSetChanged();
+
+        RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), this.getCacheDir());
+        task.delegate = new RetrieveDriveFileContentsAsyncTaskDelegate() {
+            @Override
+            public void onError(RetrieveDriveFileContentsAsyncTask task, Error error) {
+                Log.d(TAG, "failed in retrieving: " + error.getMessage());
+            }
+
+            @Override
+            public void onFinished(RetrieveDriveFileContentsAsyncTask task, RetrieveDriveFileContentsAsyncTaskResult result) {
+                item.put("image", result.getBitamp());
+                adapter.notifyDataSetChanged();
+            }
+        };
+        DriveId driveId = DriveId.decodeFromString((String)obj.get("gd_id"));
+        task.execute(driveId);
     }
 
     private void fetchRemoteParseObjects() {
-        final BooklistActivity self = this;
-
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 if (e != null) {
-                    Log.d(TAG, "failed in retrieving from parse: " + e.getMessage());
+                    showError("failed in retrieving books from parse: " + e.getMessage());
                     return;
                 }
                 for (ParseObject obj : parseObjects) {
@@ -291,13 +289,6 @@ public class BooklistActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent readIntent = new Intent(self, BookReadActivity.class);
-                /*
-                Book book = books.get(position);
-                readIntent.putExtra("book", book.rootDriveId);
-                readIntent.putExtra("title", book.title);
-                readIntent.putExtra("parseObjectId", book.parseObject.getObjectId());
-                */
-
                 Map<String, ?> item = items.get(position);
                 readIntent.putExtra("book", (DriveId)item.get("driveId"));
                 readIntent.putExtra("title", (String)item.get("title"));
@@ -319,61 +310,6 @@ public class BooklistActivity extends Activity {
 
     private void setupParse() {
         Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_key));
-    }
-
-    interface MesstinRootFolderCallback {
-        public void onResult(Error error, DriveId driveId);
-    }
-
-    private void messtinRootFolder(final MesstinRootFolderCallback callback) {
-        Query query = new Query.Builder()
-                .addFilter(Filters.eq(SearchableField.TITLE, "messtin"))
-                .addFilter(Filters.eq(SearchableField.TRASHED, false))
-                .build();
-
-        Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-            @Override
-            public void onResult(DriveApi.MetadataBufferResult result) {
-                if (!result.getStatus().isSuccess()) {
-                    Log.d("@@@", "failed in retrieving messtin dir");
-                    return;
-                }
-                MetadataBuffer mb = result.getMetadataBuffer();
-                Log.d(TAG, "messtin root dir count = " + mb.getCount());
-                messtinFolderId = mb.get(0).getDriveId();
-                mb.close();
-                Log.d(TAG, "messtin folder id = " + messtinFolderId.toString());
-                callback.onResult(null, messtinFolderId);
-            }
-        });
-    }
-
-    interface AllBookFoldersCallback {
-        public void onResult(Error error, List<Metadata> books);
-    }
-
-    private void allBookFolders(final AllBookFoldersCallback callback) {
-        messtinRootFolder(new MesstinRootFolderCallback() {
-            @Override
-            public void onResult(Error error, DriveId driveId) {
-                if (error != null) {
-                    return;
-                }
-                DriveFolder messtinFolder = Drive.DriveApi.getFolder(GDriveHelper.getInstance().getClient(), messtinFolderId);
-                messtinFolder.listChildren(GDriveHelper.getInstance().getClient()).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-                    @Override
-                    public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
-                        MetadataBuffer mb = metadataBufferResult.getMetadataBuffer();
-                        ArrayList<Metadata> books = new ArrayList<Metadata>();
-                        for (Metadata md : mb) {
-                            if (! md.isTrashed())
-                                books.add(md);
-                        }
-                        callback.onResult(null, books);
-                    }
-                });
-            }
-        });
     }
 
     @Override
@@ -408,5 +344,17 @@ public class BooklistActivity extends Activity {
         if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE && resultCode == RESULT_OK) {
             GDriveHelper.getInstance().getClient().connect();
         }
+    }
+
+    private void showError(final String msg) {
+        new AlertDialog.Builder(this)
+                .setMessage(msg)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }
