@@ -27,4 +27,16 @@ public class Book {
     public String getDescription() {
         return "";
     }
+
+    public void setRootDriveId(DriveId rootDriveId) {
+        this.rootDriveId = rootDriveId;
+    }
+
+    public Bitmap getCoverBitmap() {
+        return coverBitmap;
+    }
+
+    public DriveId getRootDriveId() {
+        return rootDriveId;
+    }
 }

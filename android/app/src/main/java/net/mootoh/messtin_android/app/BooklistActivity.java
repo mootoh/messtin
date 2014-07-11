@@ -33,7 +33,6 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +44,6 @@ public class BooklistActivity extends Activity {
     final private static String TAG = "BookListActivity";
 
     SimpleAdapter adapter;
-    List<Book> books = new ArrayList<Book>();
     List <Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 
     @Override
@@ -61,38 +59,46 @@ public class BooklistActivity extends Activity {
             public void onConnected(Bundle bundle) {
                 Log.d(TAG, "GDrive connected");
 
-                fetchLocalParseObjects();
+//                fetchBooksFromParseLocally();
 //                fetchRemoteParseObjects();
 
-                retrieveMesstinFolder(new RetrieveMesstinFolderCallback() {
-                    @Override
-                    public void onRetrieved(final DriveId driveId) {
-                        DriveFolder messtinFolder = Drive.DriveApi.getFolder(GDriveHelper.getInstance().getClient(), driveId);
-                        messtinFolder.listChildren(GDriveHelper.getInstance().getClient()).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-                            @Override
-                            public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
-                                MetadataBuffer mb = metadataBufferResult.getMetadataBuffer();
-                                for (Metadata md : mb) {
-                                    final Map<String, Object> item = new HashMap<String, Object>();
-                                    item.put("title", md.getTitle());
-                                    item.put("driveId", md.getDriveId());
-                                    items.add(item);
-                                    adapter.notifyDataSetChanged();
-                                }
-                                mb.close();
-
-                                for (Map<String, Object> item: items) {
-                                    getCoverImage(item);
-                                }
-                            }
-                        });
-                    }
-                });
+                fetchBooksFromGDrive();
             }
 
             @Override
             public void onConnectionSuspended(int i) {
                 Log.d(TAG, "GDrive onConnetionSuspended");
+            }
+        });
+    }
+
+    private void fetchBooksFromGDrive() {
+        retrieveMesstinFolder(new RetrieveMesstinFolderCallback() {
+            @Override
+            public void onRetrieved(final DriveId driveId) {
+                DriveFolder messtinFolder = Drive.DriveApi.getFolder(GDriveHelper.getInstance().getClient(), driveId);
+                messtinFolder.listChildren(GDriveHelper.getInstance().getClient()).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+                    @Override
+                    public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
+                        MetadataBuffer mb = metadataBufferResult.getMetadataBuffer();
+                        for (Metadata md : mb) {
+                            Book book = new Book(md.getTitle());
+                            book.setRootDriveId(md.getDriveId());
+
+                            Map<String, Object> item = new HashMap<String, Object>();
+                            item.put("title", book.getTitle());
+                            item.put("book", book);
+
+                            items.add(item);
+                            adapter.notifyDataSetChanged();
+                        }
+                        mb.close();
+
+                        for (Map<String, Object> item: items) {
+                            getCoverImage(item);
+                        }
+                    }
+                });
             }
         });
     }
@@ -123,9 +129,13 @@ public class BooklistActivity extends Activity {
     }
 
     private void getCoverImage(final Map<String, Object> item) {
+        Book book = (Book)item.get("book");
+        final String title = book.getTitle();
+        DriveId driveId = book.getRootDriveId();
+
         Query query = new Query.Builder()
                 .addFilter(Filters.eq(SearchableField.TITLE, "cover.jpg"))
-                .addFilter(Filters.in(SearchableField.PARENTS, (DriveId)item.get("driveId")))
+                .addFilter(Filters.in(SearchableField.PARENTS, driveId))
                 .build();
 
         final BooklistActivity self = this;
@@ -133,8 +143,6 @@ public class BooklistActivity extends Activity {
         Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
             public void onResult(DriveApi.MetadataBufferResult result) {
-                String title = (String)item.get("title");
-
                 if (!result.getStatus().isSuccess()) {
                     showError("failed in retrieving cover image for " + title);
                     return;
@@ -174,10 +182,11 @@ public class BooklistActivity extends Activity {
             @Override
             public boolean setViewValue(View view, Object data, String textRep) {
                 if (view.getId() == R.id.title) {
-                    ((TextView)view).setText((String)data);
+                    ((TextView)view).setText((String) data);
                     return true;
                 } else if (view.getId() == R.id.image) {
-                    ((ImageView)view).setImageBitmap((Bitmap)data);
+                    if (data != null)
+                        ((ImageView)view).setImageBitmap((Bitmap)data);
                     return true;
                 }
                 return false;
@@ -186,7 +195,7 @@ public class BooklistActivity extends Activity {
         adapter.setViewBinder(viewBinder);
     }
 
-    private void fetchLocalParseObjects() {
+    private void fetchBooksFromParseLocally() {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
         query.fromLocalDatastore();
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -274,8 +283,9 @@ public class BooklistActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent readIntent = new Intent(self, BookReadActivity.class);
                 Map<String, ?> item = items.get(position);
-                readIntent.putExtra("book", (DriveId)item.get("driveId"));
-                readIntent.putExtra("title", (String)item.get("title"));
+                Book book = (Book)item.get("book");
+                readIntent.putExtra("title", book.getTitle());
+                readIntent.putExtra("driveId", book.getRootDriveId());
                 startActivity(readIntent);
             }
         });
@@ -283,7 +293,7 @@ public class BooklistActivity extends Activity {
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Book book = books.get(position);
+                Book book = (Book)items.get(position).get("book");
                 Toast toast = Toast.makeText(self, book.getDescription(), Toast.LENGTH_SHORT);
                 toast.show();
 

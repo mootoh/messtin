@@ -62,7 +62,7 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
 
         Intent intent = getIntent();
         String parseObjectId = intent.getStringExtra("parseObjectId");
-        DriveId driveId = intent.getParcelableExtra("book");
+        DriveId driveId = intent.getParcelableExtra("driveId");
         this.driveId = driveId;
         title = intent.getStringExtra("title");
 
