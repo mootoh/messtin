@@ -15,6 +15,7 @@ public class Book {
     final String title;
     DriveId rootDriveId;
     Bitmap coverBitmap;
+    private ParseObject parseObject;
 
     public Book(String title) {
         this.title = title;
@@ -38,5 +39,9 @@ public class Book {
 
     public DriveId getRootDriveId() {
         return rootDriveId;
+    }
+
+    public ParseObject getParseObject() {
+        return parseObject;
     }
 }
