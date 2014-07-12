@@ -33,6 +33,7 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,17 +58,15 @@ public class BooklistActivity extends Activity {
         GDriveHelper.createInstance(this, new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(Bundle bundle) {
-                Log.d(TAG, "GDrive connected");
-
 //                fetchBooksFromParseLocally();
-//                fetchRemoteParseObjects();
-
-                fetchBooksFromGDrive();
+                fetchBooksFromParseRemotely();
+//                fetchBooksFromGDrive();
             }
 
             @Override
-            public void onConnectionSuspended(int i) {
-                Log.d(TAG, "GDrive onConnetionSuspended");
+            public void onConnectionSuspended(int why) {
+                String msg = why == CAUSE_SERVICE_DISCONNECTED  ? "disconnected" : "no network";
+                showError("failed in connecting to GDrive : " + msg);
             }
         });
     }
@@ -144,7 +143,7 @@ public class BooklistActivity extends Activity {
             @Override
             public void onResult(DriveApi.MetadataBufferResult result) {
                 if (!result.getStatus().isSuccess()) {
-                    showError("failed in retrieving cover image for " + title);
+                    Log.d(TAG, "failed in retrieving cover image for " + title);
                     return;
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();
@@ -233,8 +232,8 @@ public class BooklistActivity extends Activity {
         DriveId driveId = DriveId.decodeFromString((String)obj.get("gd_id"));
         task.execute(driveId);
     }
-/*
-    private void fetchRemoteParseObjects() {
+
+    private void fetchBooksFromParseRemotely() {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
@@ -245,8 +244,10 @@ public class BooklistActivity extends Activity {
                 }
                 for (ParseObject obj : parseObjects) {
                     boolean found = false;
-                    for (Book book : books) {
-                        if (book.parseObject.equals(obj)) {
+                    for (Map<String, Object> item: items) {
+                        Book book = (Book)item.get("book");
+                        ParseObject storedParseObject = book.getParseObject();
+                        if (storedParseObject != null && storedParseObject.equals(obj)) { // TODO: should consider updated time stamp
                             Log.d(TAG, "parseObject " + obj.getObjectId() + " already exists, skipping");
                             found = true;
                             break;
@@ -259,20 +260,40 @@ public class BooklistActivity extends Activity {
                         @Override
                         public void done(ParseException e) {
                             if (e != null) {
-                                Log.e(TAG, "failed in pinning to local store: " + e.getMessage());
+                                showError("failed in pinning to local store: " + e.getMessage());
+                                return;
                             }
                             Log.d(TAG, "done pinning to local store");
                         }
                     });
-//FIXME
-//                    Book book = new Book(obj, GDriveHelper.getInstance().getClient(), self);
-//                    books.add(book);
+
+                    final String title = (String)obj.get("title");
+                    final Book book = new Book(title);
+                    final Map <String, Object> item = new HashMap<String, Object>();
+                    item.put("title", title);
+                    item.put("book", book);
+                    items.add(item);
+
+                    com.google.android.gms.common.api.PendingResult<com.google.android.gms.drive.DriveApi.DriveIdResult> pr = Drive.DriveApi.fetchDriveId(GDriveHelper.getInstance().getClient(), obj.getString("gd_id"));
+                    pr.setResultCallback(new ResultCallback<DriveApi.DriveIdResult>() {
+                        @Override
+                        public void onResult(DriveApi.DriveIdResult driveIdResult) {
+                            Log.d(TAG, "received driveId for " + title + ": " + driveIdResult.getDriveId());
+                            book.setRootDriveId(driveIdResult.getDriveId());
+                            getCoverImage(item);
+                        }
+                    });
+
                 }
                 adapter.notifyDataSetChanged();
+
+                for (Map<String, Object> item: items) {
+                    getCoverImage(item);
+                }
             }
         });
     }
- */
+
     private void setupGridView() {
         GridView gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(adapter);

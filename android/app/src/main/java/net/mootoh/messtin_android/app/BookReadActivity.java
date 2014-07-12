@@ -50,6 +50,7 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
 
     Map<String, DriveId> allDriveId = new HashMap<String, DriveId>();
     int currentPage = 1;
+    int pageCount = 0;
     DriveId driveId;
     String title;
     ParseObject parseObject;
@@ -65,6 +66,8 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         DriveId driveId = intent.getParcelableExtra("driveId");
         this.driveId = driveId;
         title = intent.getStringExtra("title");
+
+        Log.d(TAG, "driveId for book " + title + ": " + driveId);
 
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
@@ -182,9 +185,15 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
     }
 
     public void setup(DriveId driveId) {
-        Query query = new Query.Builder()
-                .addFilter(Filters.in(SearchableField.PARENTS, driveId))
-                .build();
+//        retrieveDriveIds(null);
+    }
+
+    private void retrieveDriveIds(String nextToken) {
+        Query.Builder builder = new Query.Builder()
+                .addFilter(Filters.in(SearchableField.PARENTS, driveId));
+        if (nextToken != null)
+            builder.setPageToken(nextToken);
+        Query query = builder.build();
 
         final BookReadActivity self = this;
         Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
@@ -195,18 +204,25 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
                     return;
                 }
                 MetadataBuffer mb = result.getMetadataBuffer();
+
                 for (Metadata md : mb) {
 //                    Log.d(TAG, "image " + md.getTitle() + " id = " + md.getDriveId().toString());
                     allDriveId.put(md.getTitle(), md.getDriveId());
                 }
+                String token = mb.getNextPageToken();
                 mb.close();
 
-                retrievePage(currentPage);
+                if (token == null) {
+                    retrievePage(currentPage);
+                    return;
+                }
+                retrieveDriveIds(token);
             }
         });
     }
 
     private boolean checkPageBound(int page) {
+//        if (page <= 0 || page > pageCount) {
         if (page <= 0 || page > allDriveId.size()) {
             Log.d(TAG, "out of bound: page=" + page);
             return false;
@@ -220,7 +236,8 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         return name;
     }
 
-    private void retrievePage(int page) {
+    private void retrievePage(final int page) {
+        /*
         if (!checkPageBound(page)) return;
 
         String name = filenameForPage(page);
@@ -229,7 +246,41 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         task.setPage(page);
         task.delegate = this;
         setProgressBarIndeterminateVisibility(true);
+
         task.execute(allDriveId.get(name));
+        */
+
+        String name = filenameForPage(page);
+        Query query = new Query.Builder()
+                .addFilter(Filters.in(SearchableField.PARENTS, driveId))
+                .addFilter(Filters.eq(SearchableField.TITLE, name))
+                .build();
+
+        final BookReadActivity self = this;
+        Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+            @Override
+            public void onResult(DriveApi.MetadataBufferResult result) {
+                if (!result.getStatus().isSuccess()) {
+                    Log.d("@@@", "failed in retrieving page " + page + " for book: " + title);
+                    return;
+                }
+                MetadataBuffer mb = result.getMetadataBuffer();
+                Log.d(TAG, "getCount = " + mb.getCount());
+                if (mb.getCount() < 1) {
+                    Log.e(TAG, "failed in fetching a page " + page);
+                    return;
+                }
+
+                Metadata md = mb.get(0);
+                mb.close();
+
+                RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), self.getCacheDir());
+                task.setPage(page);
+                task.delegate = self;
+                setProgressBarIndeterminateVisibility(true);
+                task.execute(md.getDriveId());
+            }
+        });
     }
 
     public void nextPage() {
