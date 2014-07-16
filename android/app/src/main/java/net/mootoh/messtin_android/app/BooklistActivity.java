@@ -59,14 +59,58 @@ public class BooklistActivity extends Activity {
             @Override
             public void onConnected(Bundle bundle) {
 //                fetchBooksFromParseLocally();
-                fetchBooksFromParseRemotely();
-//                fetchBooksFromGDrive();
+//                fetchBooksFromParseRemotely();
+                fetchBooksFromGDrive();
+//                test();
             }
 
             @Override
             public void onConnectionSuspended(int why) {
                 String msg = why == CAUSE_SERVICE_DISCONNECTED  ? "disconnected" : "no network";
                 showError("failed in connecting to GDrive : " + msg);
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GDriveHelper.getInstance().connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        GDriveHelper.getInstance().disconnect();
+    }
+
+    private void test() {
+        String resourceId = "0B0v3qwjLutgMZGlVc3ZhbWFibkU";
+        com.google.android.gms.common.api.PendingResult<com.google.android.gms.drive.DriveApi.DriveIdResult> pr = Drive.DriveApi.fetchDriveId(GDriveHelper.getInstance().getClient(), resourceId);
+        pr.setResultCallback(new ResultCallback<DriveApi.DriveIdResult>() {
+            @Override
+            public void onResult(DriveApi.DriveIdResult driveIdResult) {
+                Log.d(TAG, "received driveId: " + driveIdResult.getDriveId());
+
+                Query query = new Query.Builder()
+                        .addFilter(Filters.in(SearchableField.PARENTS, driveIdResult.getDriveId()))
+                        .build();
+
+                Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+                    @Override
+                    public void onResult(DriveApi.MetadataBufferResult result) {
+                        if (!result.getStatus().isSuccess()) {
+                            Log.e(TAG, "failed in retrieving");
+                            return;
+                        }
+                        MetadataBuffer mb = result.getMetadataBuffer();
+                        Log.d(TAG, "result count : " + mb.getCount());
+                        for (Metadata md: mb) {
+                            Log.d(TAG, "md.title: " + md.getTitle() + ", resourceId:" + md.getDriveId().getResourceId());
+                        }
+                        mb.close();
+                    }
+                });
             }
         });
     }
@@ -83,6 +127,7 @@ public class BooklistActivity extends Activity {
                         for (Metadata md : mb) {
                             Book book = new Book(md.getTitle());
                             book.setRootDriveId(md.getDriveId());
+                            Log.d(TAG, "book title: " + md.getTitle() + " driveId: " + md.getDriveId() + " resourceId: " + md.getDriveId().getResourceId());
 
                             Map<String, Object> item = new HashMap<String, Object>();
                             item.put("title", book.getTitle());
@@ -150,11 +195,12 @@ public class BooklistActivity extends Activity {
                 Log.d(TAG, "book " + title + " cover count: " + mb.getCount());
                 if (mb.getCount() < 1) {
                     Log.d(TAG, "no cover image for " + title);
+                    mb.close();
                     return;
                 }
 
                 Metadata md = mb.get(0);
-                DriveId driveId = md.getDriveId();
+                DriveId coverDriveId = md.getDriveId();
                 mb.close();
 
                 RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), self.getCacheDir());
@@ -170,7 +216,7 @@ public class BooklistActivity extends Activity {
                         adapter.notifyDataSetChanged();
                     }
                 };
-                task.execute(driveId);
+                task.execute(coverDriveId);
             }
         });
     }
@@ -325,12 +371,6 @@ public class BooklistActivity extends Activity {
 
     private void setupParse() {
         Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_key));
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        GDriveHelper.getInstance().getClient().connect();
     }
 
     @Override

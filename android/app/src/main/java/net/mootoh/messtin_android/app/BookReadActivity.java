@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
@@ -62,7 +63,6 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         setContentView(R.layout.activity_bookread);
 
         Intent intent = getIntent();
-        String parseObjectId = intent.getStringExtra("parseObjectId");
         DriveId driveId = intent.getParcelableExtra("driveId");
         this.driveId = driveId;
         title = intent.getStringExtra("title");
@@ -186,6 +186,21 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
 
     public void setup(DriveId driveId) {
 //        retrieveDriveIds(null);
+        retrieveFolder(driveId);
+    }
+
+    private void retrieveFolder(DriveId driveId) {
+        DriveFolder folder = Drive.DriveApi.getFolder(GDriveHelper.getInstance().getClient(), driveId);
+        folder.listChildren(GDriveHelper.getInstance().getClient()).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+            @Override
+            public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
+                MetadataBuffer mb = metadataBufferResult.getMetadataBuffer();
+                for (Metadata md : mb) {
+                    Log.d(TAG, "title: " + md.getTitle());
+                }
+                mb.close();
+            }
+        });
     }
 
     private void retrieveDriveIds(String nextToken) {
@@ -253,7 +268,7 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         String name = filenameForPage(page);
         Query query = new Query.Builder()
                 .addFilter(Filters.in(SearchableField.PARENTS, driveId))
-                .addFilter(Filters.eq(SearchableField.TITLE, name))
+//                .addFilter(Filters.eq(SearchableField.TITLE, name))
                 .build();
 
         final BookReadActivity self = this;
@@ -271,14 +286,21 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
                     return;
                 }
 
+                for (Metadata md : mb) {
+                    DriveId pageDriveId = md.getDriveId();
+                    Log.d(TAG, "pageDriveId = " + pageDriveId + ", title = " + md.getTitle());
+                }
+
                 Metadata md = mb.get(0);
+                DriveId pageDriveId = md.getDriveId();
+                Log.d(TAG, "pageDriveId = " + pageDriveId + ", title = " + md.getTitle());
                 mb.close();
 
                 RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), self.getCacheDir());
                 task.setPage(page);
                 task.delegate = self;
                 setProgressBarIndeterminateVisibility(true);
-                task.execute(md.getDriveId());
+                task.execute(pageDriveId);
             }
         });
     }

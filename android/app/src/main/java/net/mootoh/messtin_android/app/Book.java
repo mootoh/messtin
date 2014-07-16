@@ -14,7 +14,6 @@ public class Book {
 
     final String title;
     DriveId rootDriveId;
-    Bitmap coverBitmap;
     private ParseObject parseObject;
 
     public Book(String title) {
@@ -31,10 +30,6 @@ public class Book {
 
     public void setRootDriveId(DriveId rootDriveId) {
         this.rootDriveId = rootDriveId;
-    }
-
-    public Bitmap getCoverBitmap() {
-        return coverBitmap;
     }
 
     public DriveId getRootDriveId() {

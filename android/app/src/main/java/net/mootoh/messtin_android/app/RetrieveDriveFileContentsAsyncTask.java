@@ -1,19 +1,15 @@
 package net.mootoh.messtin_android.app;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.Metadata;
-import com.google.api.client.util.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -71,7 +67,7 @@ final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<DriveId, Boolea
         }
 
         Log.d(TAG, "got image content for " + driveId);
-
+/*
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             IOUtils.copy(contentsResult.getContents().getInputStream(), bos);
@@ -91,7 +87,8 @@ final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<DriveId, Boolea
             error = new Error("failed in storing downloaded contents to cache: " + e.getMessage());
             return null;
         }
-
+*/
+        Bitmap bm = BitmapFactory.decodeStream(contentsResult.getContents().getInputStream());
         file.discardContents(client, contentsResult.getContents()).await();
         return new RetrieveDriveFileContentsAsyncTaskResult(bm);
     }
