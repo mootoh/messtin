@@ -17,7 +17,6 @@ public class GDriveHelper {
     private static final int RESOLVE_CONNECTION_REQUEST_CODE = 1;
     static GDriveHelper s_instance;
 
-    private boolean ready_ = false;
     final private GoogleApiClient client_;
 
     static public GDriveHelper getInstance() {
@@ -27,10 +26,6 @@ public class GDriveHelper {
     static public GDriveHelper createInstance(final Context context, GoogleApiClient.ConnectionCallbacks callbacks) {
         s_instance = new GDriveHelper(context, callbacks);
         return s_instance;
-    }
-
-    public boolean isReady() {
-        return ready_;
     }
 
     private GDriveHelper(final Context context, GoogleApiClient.ConnectionCallbacks callbacks) {
@@ -54,6 +49,14 @@ public class GDriveHelper {
                     }
                 })
                 .build();
+    }
+
+    public void connect() {
+        client_.connect();
+    }
+
+    public void disconnect() {
+        client_.disconnect();
     }
 
     public GoogleApiClient getClient() {
