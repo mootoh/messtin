@@ -1,10 +1,12 @@
 package net.mootoh.messtin_android.app;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +19,10 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.common.AccountPicker;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
@@ -28,6 +34,7 @@ import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.google.api.services.drive.DriveScopes;
 import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -35,6 +42,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +58,8 @@ public class BooklistActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /*
         setContentView(R.layout.activity_booklist);
         setupAdapter();
         setupGridView();
@@ -70,18 +80,34 @@ public class BooklistActivity extends Activity {
                 showError("failed in connecting to GDrive : " + msg);
             }
         });
+        */
+
+        testGoogleApiClient();
+    }
+
+    static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
+
+    private void testGoogleApiClient() {
+        pickUserAccount();
+    }
+
+    private void pickUserAccount() {
+        String[] accountTypes = new String[]{"com.google"};
+        Intent intent = AccountPicker.newChooseAccountIntent(null, null,
+                accountTypes, false, null, null, null, null);
+        startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        GDriveHelper.getInstance().connect();
+//        GDriveHelper.getInstance().connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        GDriveHelper.getInstance().disconnect();
+//        GDriveHelper.getInstance().disconnect();
     }
 
     private void test() {
@@ -398,6 +424,31 @@ public class BooklistActivity extends Activity {
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE && resultCode == RESULT_OK) {
             GDriveHelper.getInstance().getClient().connect();
+        } else if (requestCode == REQUEST_CODE_PICK_ACCOUNT) {
+            if (resultCode == RESULT_OK) {
+                final String email = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                Log.d(TAG, "authorized, email = " + email);
+
+                final BooklistActivity self = this;
+
+                AsyncTask task = new AsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        try {
+                            String token = GoogleAuthUtil.getToken(self, email, DriveScopes.DRIVE_FILE);
+                            Log.d(TAG, "auth token = " + token);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (GoogleAuthException e) {
+                            Log.e(TAG, "auth exception: " + e.getMessage() + ", " + e.getLocalizedMessage());
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                };
+                task.execute((Void)null);
+
+            }
         }
     }
 

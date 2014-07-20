@@ -26,4 +26,7 @@ dependencies {
     compile 'com.google.android.gms:play-services:+'
     compile 'com.android.support:support-v4:20.0.0'
     compile 'com.android.support:appcompat-v7:20.0.0'
+    compile files('libs/google-api-services-drive-v2-rev134-1.18.0-rc.jar')
+    compile files('libs/google-api-client-android-1.18.0-rc.jar')
+    compile files('libs/google-http-client-1.18.0-rc.jar')
 }
