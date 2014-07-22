@@ -16,15 +16,21 @@ import java.net.URL;
  */
 public class HttpBookStorage implements BookStorage {
     private static final String TAG = "HttpBookStorage";
-    BookStorageDelegate delegate;
     String baseUrl;
 
     HttpBookStorage(String url) {
         this.baseUrl = url;
     }
 
+    private String filenameForPage(int page) {
+        String name = "%03d.jpg";
+        name = String.format(name, page);
+        return name;
+    }
+
     @Override
     public void retrieve(Book book, int page, OnImageRetrieved callback) {
+        String name = filenameForPage(page);
     }
 
     @Override
@@ -42,13 +48,6 @@ public class HttpBookStorage implements BookStorage {
             callback.onRetrieved(new Error(e.getMessage()), null);
             return;
         }
-
-        Log.d(TAG, "url: " + url);
-        Log.d(TAG, "host = " + url.getHost());
-        Log.d(TAG, "autho = " + url.getAuthority());
-        Log.d(TAG, "port = " + url.getPort());
-        Log.d(TAG, "path = " + url.getPath());
-        Log.d(TAG, "proto = " + url.getProtocol());
 
         AsyncTask task = new AsyncTask() {
             @Override

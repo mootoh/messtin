@@ -7,6 +7,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,15 +46,13 @@ import java.util.Map;
 /**
  * Created by mootoh on 5/11/14.
  */
-public class BookReadActivity extends Activity implements RetrieveDriveFileContentsAsyncTaskDelegate {
+public class BookReadActivity extends Activity {
     private static final String TAG = "BookReadActivity";
     private static final String KEY_PAGE_NUMBER = "KEY_PAGE_NUMBER";
     public static final int JUMP_TO_PAGE = 2;
 
-    Map<String, DriveId> allDriveId = new HashMap<String, DriveId>();
     int currentPage = 1;
-    int pageCount = 0;
-    DriveId driveId;
+    Book book;
     String title;
     ParseObject parseObject;
 
@@ -64,22 +63,18 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         setContentView(R.layout.activity_bookread);
 
         Intent intent = getIntent();
-        DriveId driveId = intent.getParcelableExtra("driveId");
-        this.driveId = driveId;
-        title = intent.getStringExtra("title");
-
-        Log.d(TAG, "driveId for book " + title + ": " + driveId);
+        book = intent.getParcelableExtra("book");
+        title = book.getTitle();
 
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
         }
 
         SharedPreferences pref = getPreferences(MODE_PRIVATE);
-        currentPage = pref.getInt(driveId.toString() + ":page", currentPage);
+        currentPage = pref.getInt(book.getObjectId() + ":page", currentPage);
 
         updateTitle();
 
-        setup(driveId);
 /*
         ParseQuery parseQ = ParseQuery.getQuery("Book");
         parseQ.getInBackground(parseObjectId, new GetCallback() {
@@ -121,6 +116,8 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
                 return false;
             }
         });
+
+        retrievePage(currentPage);
 
         hideSystemUI();
     }
@@ -181,7 +178,7 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
     private void saveCurrentPage() {
         SharedPreferences pref = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor edit = pref.edit();
-        edit.putInt(driveId.toString() + ":page", currentPage);
+        edit.putInt(book.getObjectId() + ":page", currentPage);
         edit.commit();
     }
 
@@ -204,104 +201,29 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         });
     }
 
-    private void retrieveDriveIds(String nextToken) {
-        Query.Builder builder = new Query.Builder()
-                .addFilter(Filters.in(SearchableField.PARENTS, driveId));
-        if (nextToken != null)
-            builder.setPageToken(nextToken);
-        Query query = builder.build();
-
-        final BookReadActivity self = this;
-        Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-            @Override
-            public void onResult(DriveApi.MetadataBufferResult result) {
-                if (!result.getStatus().isSuccess()) {
-                    Log.d("@@@", "failed in retrieving pages for book: " + title);
-                    return;
-                }
-                MetadataBuffer mb = result.getMetadataBuffer();
-
-                for (Metadata md : mb) {
-//                    Log.d(TAG, "image " + md.getTitle() + " id = " + md.getDriveId().toString());
-                    allDriveId.put(md.getTitle(), md.getDriveId());
-                }
-                String token = mb.getNextPageToken();
-                mb.close();
-
-                if (token == null) {
-                    retrievePage(currentPage);
-                    return;
-                }
-                retrieveDriveIds(token);
-            }
-        });
-    }
-
     private boolean checkPageBound(int page) {
 //        if (page <= 0 || page > pageCount) {
-        if (page <= 0 || page > allDriveId.size()) {
+        if (page <= 0 || page > book.getPageCount()) {
             Log.d(TAG, "out of bound: page=" + page);
             return false;
         }
         return true;
     }
 
-    private String filenameForPage(int page) {
-        String name = "%03d.jpg";
-        name = String.format(name, page);
-        return name;
-    }
-
     private void retrievePage(final int page) {
-        /*
         if (!checkPageBound(page)) return;
 
-        String name = filenameForPage(page);
-        Log.d(TAG, "retrieving page = " + name);
-        RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), this.getCacheDir());
-        task.setPage(page);
-        task.delegate = this;
         setProgressBarIndeterminateVisibility(true);
 
-        task.execute(allDriveId.get(name));
-        */
-
-        String name = filenameForPage(page);
-        Query query = new Query.Builder()
-                .addFilter(Filters.in(SearchableField.PARENTS, driveId))
-//                .addFilter(Filters.eq(SearchableField.TITLE, name))
-                .build();
-
-        final BookReadActivity self = this;
-        Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+        BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
+        storage.retrieve(book, page, new OnImageRetrieved() {
             @Override
-            public void onResult(DriveApi.MetadataBufferResult result) {
-                if (!result.getStatus().isSuccess()) {
-                    Log.d("@@@", "failed in retrieving page " + page + " for book: " + title);
-                    return;
-                }
-                MetadataBuffer mb = result.getMetadataBuffer();
-                Log.d(TAG, "getCount = " + mb.getCount());
-                if (mb.getCount() < 1) {
-                    Log.e(TAG, "failed in fetching a page " + page);
-                    return;
-                }
+            public void onRetrieved(Error error, Bitmap bitmap) {
+                setProgressBarIndeterminateVisibility(false);
 
-                for (Metadata md : mb) {
-                    DriveId pageDriveId = md.getDriveId();
-                    Log.d(TAG, "pageDriveId = " + pageDriveId + ", title = " + md.getTitle());
-                }
-
-                Metadata md = mb.get(0);
-                DriveId pageDriveId = md.getDriveId();
-                Log.d(TAG, "pageDriveId = " + pageDriveId + ", title = " + md.getTitle());
-                mb.close();
-
-                RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(GDriveHelper.getInstance().getClient(), self.getCacheDir());
-                task.setPage(page);
-                task.delegate = self;
-                setProgressBarIndeterminateVisibility(true);
-                task.execute(pageDriveId);
+                ImageView iv = (ImageView) findViewById(R.id.imageView);
+                iv.setImageBitmap(bitmap);
+                updateTitle();
             }
         });
     }
@@ -318,25 +240,6 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
         currentPage--;
         retrievePage(currentPage);
         retrievePage(currentPage - 1);
-    }
-
-    @Override
-    public void onError(RetrieveDriveFileContentsAsyncTask task, Error error) {
-        setProgressBarIndeterminateVisibility(false);
-
-    }
-
-    @Override
-    public void onFinished(RetrieveDriveFileContentsAsyncTask task, RetrieveDriveFileContentsAsyncTaskResult result) {
-        setProgressBarIndeterminateVisibility(false);
-
-        ImageView iv = (ImageView) findViewById(R.id.imageView);
-        String name = filenameForPage(currentPage);
-
-        if (task.getPage() == currentPage) {
-            iv.setImageBitmap(result.getBitamp());
-            updateTitle();
-        }
     }
 
     class GotoPageDialogFragment extends DialogFragment {
@@ -405,7 +308,7 @@ public class BookReadActivity extends Activity implements RetrieveDriveFileConte
                 return true;
             case R.id.action_show_thumbnails:
                 Intent thumbnail = new Intent(this, ThumbnailActivity.class);
-                thumbnail.putExtra("parentDriveId", driveId);
+//                thumbnail.putExtra("parentDriveId", driveId);
                 startActivityForResult(thumbnail, JUMP_TO_PAGE);
                 return true;
             case R.id.action_pin_this_book:
