@@ -15,6 +15,7 @@ public class Book {
     final String title;
     DriveId rootDriveId;
     private ParseObject parseObject;
+    private String objectId;
 
     public Book(String title) {
         this.title = title;
@@ -38,5 +39,13 @@ public class Book {
 
     public ParseObject getParseObject() {
         return parseObject;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    public String getObjectId() {
+        return objectId;
     }
 }
