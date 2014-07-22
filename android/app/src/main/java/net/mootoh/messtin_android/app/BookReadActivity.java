@@ -69,10 +69,11 @@ public class BookReadActivity extends Activity {
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
         }
-
+/*
         SharedPreferences pref = getPreferences(MODE_PRIVATE);
         currentPage = pref.getInt(book.getObjectId() + ":page", currentPage);
-
+*/
+        Log.d(TAG, "current page = " + currentPage);
         updateTitle();
 
 /*
@@ -218,12 +219,17 @@ public class BookReadActivity extends Activity {
         BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
         storage.retrieve(book, page, new OnImageRetrieved() {
             @Override
-            public void onRetrieved(Error error, Bitmap bitmap) {
+            public void onRetrieved(Error error, final Bitmap bitmap) {
                 setProgressBarIndeterminateVisibility(false);
 
-                ImageView iv = (ImageView) findViewById(R.id.imageView);
-                iv.setImageBitmap(bitmap);
-                updateTitle();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ImageView iv = (ImageView) findViewById(R.id.imageView);
+                        iv.setImageBitmap(bitmap);
+                        updateTitle();
+                    }
+                });
             }
         });
     }

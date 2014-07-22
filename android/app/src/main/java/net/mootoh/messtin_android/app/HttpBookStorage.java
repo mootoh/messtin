@@ -30,20 +30,24 @@ public class HttpBookStorage implements BookStorage {
 
     @Override
     public void retrieve(Book book, int page, OnImageRetrieved callback) {
-        String name = filenameForPage(page);
+        retrieveImage(filenameForPage(page), book, callback);
     }
 
     @Override
     public void retrieveCover(Book book, final OnImageRetrieved callback) {
+        retrieveImage("cover.jpg", book, callback);
+    }
+
+    public void retrieveImage(String name, Book book, final OnImageRetrieved callback) {
         String objId = book.getObjectId();
         final URL url;
 
         Uri.Builder builder = Uri.parse(baseUrl).buildUpon();
         builder.appendPath(objId);
-        builder.appendPath("cover.jpg");
+        builder.appendPath(name);
 
         try {
-            url = new URL( builder.toString());
+            url = new URL(builder.toString());
         } catch (MalformedURLException e) {
             callback.onRetrieved(new Error(e.getMessage()), null);
             return;
