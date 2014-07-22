@@ -1,4 +1,4 @@
-package net.mootoh.messtin_android.app;
+package net.mootoh.messtin_android.app.google;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,37 +11,19 @@ import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-interface RetrieveDriveFileContentsAsyncTaskDelegate {
-    public void onError(RetrieveDriveFileContentsAsyncTask task, Error error);
-    public void onFinished(RetrieveDriveFileContentsAsyncTask task, RetrieveDriveFileContentsAsyncTaskResult result);
-}
-
-class RetrieveDriveFileContentsAsyncTaskResult {
-    private final Bitmap bm;
-
-    RetrieveDriveFileContentsAsyncTaskResult(Bitmap bm) {
-        this.bm = bm;
-    }
-
-    public Bitmap getBitamp() {
-        return bm;
-    }
-}
 /**
  * Created by mootoh on 5/12/14.
  */
-final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<DriveId, Boolean, RetrieveDriveFileContentsAsyncTaskResult> {
+public final class RetrieveDriveFileContentsAsyncTask extends AsyncTask<DriveId, Boolean, RetrieveDriveFileContentsAsyncTaskResult> {
     static final String TAG = "RetrieveDriveFileContentsAsyncTask";
     private final GoogleApiClient client;
     private final File cacheDir;
-    RetrieveDriveFileContentsAsyncTaskDelegate delegate;
+    public RetrieveDriveFileContentsAsyncTaskDelegate delegate;
     private Error error;
     private int page;
 

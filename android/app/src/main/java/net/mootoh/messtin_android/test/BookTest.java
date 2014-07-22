@@ -2,14 +2,10 @@ package net.mootoh.messtin_android.test;
 
 import android.os.Bundle;
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
-
-import net.mootoh.messtin_android.app.Book;
-import net.mootoh.messtin_android.app.GDriveHelper;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

@@ -30,15 +30,16 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.ortiz.touch.TouchImageView;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
+import net.mootoh.messtin_android.app.google.GDriveHelper;
+import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTask;
+import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTaskDelegate;
+import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTaskResult;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

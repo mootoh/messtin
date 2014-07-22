@@ -1,8 +1,7 @@
-package net.mootoh.messtin_android.app;
+package net.mootoh.messtin_android.app.google;
 
 import android.content.Context;
 import android.content.IntentSender;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;

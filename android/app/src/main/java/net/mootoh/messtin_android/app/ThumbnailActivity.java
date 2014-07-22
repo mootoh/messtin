@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
@@ -25,9 +24,9 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 
-import java.util.ArrayList;
+import net.mootoh.messtin_android.app.google.GDriveHelper;
+
 import java.util.HashMap;
-import java.util.Vector;
 
 class ThumbnailImageAdapter extends BaseAdapter {
     static final private String TAG = "ThumbnailImageAdapter";
