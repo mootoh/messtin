@@ -22,8 +22,6 @@ import android.widget.Toast;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
@@ -41,6 +39,11 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
+
+import net.mootoh.messtin_android.app.google.GDriveHelper;
+import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTask;
+import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTaskDelegate;
+import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTaskResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,7 +134,7 @@ public class BooklistActivity extends Activity {
                         }
                         MetadataBuffer mb = result.getMetadataBuffer();
                         Log.d(TAG, "result count : " + mb.getCount());
-                        for (Metadata md: mb) {
+                        for (Metadata md : mb) {
                             Log.d(TAG, "md.title: " + md.getTitle() + ", resourceId:" + md.getDriveId().getResourceId());
                         }
                         mb.close();
@@ -164,7 +167,7 @@ public class BooklistActivity extends Activity {
                         }
                         mb.close();
 
-                        for (Map<String, Object> item: items) {
+                        for (Map<String, Object> item : items) {
                             getCoverImage(item);
                         }
                     }
