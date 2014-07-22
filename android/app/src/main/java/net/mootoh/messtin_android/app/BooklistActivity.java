@@ -82,7 +82,6 @@ public class BooklistActivity extends Activity {
     }
 
     private void fetchCoverImageWithParseObject(ParseObject obj) {
-
     }
 
     private void fetchBooksFromParseRemotely() {
@@ -98,6 +97,7 @@ public class BooklistActivity extends Activity {
                     final String objId = obj.getObjectId();
                     final String title = (String)obj.get("title");
                     final Book book = new Book(title);
+                    book.setPageCount(obj.getInt("pages"));
                     book.setObjectId(objId);
                     final Map <String, Object> item = new HashMap<String, Object>();
                     item.put("title", title);
@@ -138,8 +138,7 @@ public class BooklistActivity extends Activity {
                 Intent readIntent = new Intent(self, BookReadActivity.class);
                 Map<String, ?> item = items.get(position);
                 Book book = (Book)item.get("book");
-                readIntent.putExtra("title", book.getTitle());
-                readIntent.putExtra("driveId", book.getRootDriveId());
+                readIntent.putExtra("book", book);
                 startActivity(readIntent);
             }
         });

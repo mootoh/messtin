@@ -1,6 +1,8 @@
 package net.mootoh.messtin_android.app;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.DriveId;
@@ -9,11 +11,11 @@ import com.parse.ParseObject;
 /**
  * Created by mootoh on 5/12/14.
  */
-public class Book {
+public class Book implements Parcelable {
     static final private String TAG = "Book";
 
     final String title;
-    DriveId rootDriveId;
+    int pageCount = 0;
     private ParseObject parseObject;
     private String objectId;
 
@@ -29,12 +31,12 @@ public class Book {
         return "";
     }
 
-    public void setRootDriveId(DriveId rootDriveId) {
-        this.rootDriveId = rootDriveId;
+    public int getPageCount() {
+        return pageCount;
     }
 
-    public DriveId getRootDriveId() {
-        return rootDriveId;
+    public void setPageCount(int count) {
+        pageCount = count;
     }
 
     public ParseObject getParseObject() {
@@ -47,5 +49,34 @@ public class Book {
 
     public String getObjectId() {
         return objectId;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeInt(pageCount);
+        dest.writeString(objectId);
+    }
+
+    public static Parcelable.Creator<Book> CREATOR = new Parcelable.Creator<Book>() {
+        public Book createFromParcel(Parcel in) {
+            return new Book(in);
+        }
+
+        @Override
+        public Book[] newArray(int size) {
+            return new Book[size];
+        }
+    };
+
+    Book(Parcel in) {
+        title = in.readString();
+        pageCount = in.readInt();
+        objectId = in.readString();
     }
 }
