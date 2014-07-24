@@ -118,8 +118,7 @@ public class BookReadActivity extends Activity {
             }
         });
 
-        retrievePage(currentPage);
-
+        retrievePage(currentPage, true);
         hideSystemUI();
     }
 
@@ -211,7 +210,7 @@ public class BookReadActivity extends Activity {
         return true;
     }
 
-    private void retrievePage(final int page) {
+    private void retrievePage(final int page, final boolean toShow) {
         if (!checkPageBound(page)) return;
 
         setProgressBarIndeterminateVisibility(true);
@@ -225,6 +224,7 @@ public class BookReadActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (! toShow) return;
                         ImageView iv = (ImageView) findViewById(R.id.imageView);
                         iv.setImageBitmap(bitmap);
                         updateTitle();
@@ -237,15 +237,15 @@ public class BookReadActivity extends Activity {
     public void nextPage() {
         if (!checkPageBound(currentPage + 1)) return;
         currentPage++;
-        retrievePage(currentPage);
-        retrievePage(currentPage + 1);
+        retrievePage(currentPage, true);
+        retrievePage(currentPage + 1, false);
     }
 
     private void prevPage() {
         if (!checkPageBound(currentPage - 1)) return;
         currentPage--;
-        retrievePage(currentPage);
-        retrievePage(currentPage - 1);
+        retrievePage(currentPage, true);
+        retrievePage(currentPage - 1, false);
     }
 
     class GotoPageDialogFragment extends DialogFragment {
@@ -263,7 +263,7 @@ public class BookReadActivity extends Activity {
                             EditText et = (EditText) customView.findViewById(R.id.page_to_go);
                             int page = Integer.parseInt(et.getText().toString());
                             currentPage = page;
-                            retrievePage(page);
+                            retrievePage(page, true);
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -332,7 +332,7 @@ public class BookReadActivity extends Activity {
         if (resultCode == JUMP_TO_PAGE) {
             int pageTo = data.getIntExtra("page", currentPage);
             currentPage = pageTo;
-            retrievePage(pageTo);
+            retrievePage(pageTo, true);
 
         }
     }
