@@ -10,11 +10,16 @@ import java.net.MalformedURLException;
  * Created by mootoh on 6/16/14.
  */
 public class MesstinApplication extends Application {
-    final BookStorage storage;
+    BookStorage storage;
 
     public MesstinApplication() {
         Parse.enableLocalDatastore(this);
-        storage = new HttpBookStorage("http://10.0.1.4:8000");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        storage = new HttpBookStorage(getString(R.string.storage_server_url), this);
     }
 
     public BookStorage getBookStorage() {
