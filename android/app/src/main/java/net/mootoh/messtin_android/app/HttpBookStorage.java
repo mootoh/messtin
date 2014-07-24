@@ -58,6 +58,7 @@ public class HttpBookStorage implements BookStorage {
         if (existInCache(path)) {
             Bitmap bitmap = resultFromCache(path);
             callback.onRetrieved(null, bitmap);
+            return;
         }
 
         createDirInCache(objId);
