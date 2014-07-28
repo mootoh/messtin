@@ -227,6 +227,7 @@ public class BookReadActivity extends Activity {
                         ImageView iv = (ImageView) findViewById(R.id.imageView);
                         iv.setImageBitmap(bitmap);
                         updateTitle();
+                        iv.invalidate();
                     }
                 });
             }
