@@ -68,12 +68,11 @@ public class BookReadActivity extends Activity {
 
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
+        } else {
+            SharedPreferences pref = getPreferences(MODE_PRIVATE);
+            currentPage = pref.getInt(book.getObjectId() + ":page", currentPage);
         }
-/*
-        SharedPreferences pref = getPreferences(MODE_PRIVATE);
-        currentPage = pref.getInt(book.getObjectId() + ":page", currentPage);
-*/
-        Log.d(TAG, "current page = " + currentPage);
+
         updateTitle();
 
 /*
@@ -314,7 +313,7 @@ public class BookReadActivity extends Activity {
                 return true;
             case R.id.action_show_thumbnails:
                 Intent thumbnail = new Intent(this, ThumbnailActivity.class);
-//                thumbnail.putExtra("parentDriveId", driveId);
+                thumbnail.putExtra("book", book);
                 startActivityForResult(thumbnail, JUMP_TO_PAGE);
                 return true;
             case R.id.action_pin_this_book:

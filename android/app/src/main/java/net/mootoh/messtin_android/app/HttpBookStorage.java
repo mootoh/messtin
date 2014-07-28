@@ -51,6 +51,11 @@ public class HttpBookStorage implements BookStorage {
         retrieveImage("cover.jpg", book, callback);
     }
 
+    @Override
+    public void retrieveThumbnail(Book book, int page, OnImageRetrieved callback) {
+        retrieveImage("tm/" + filenameForPage(page), book, callback);
+    }
+
     public void retrieveImage(String name, Book book, final OnImageRetrieved callback) {
         String objId = book.getObjectId();
         final String path = objId + "/" + name;

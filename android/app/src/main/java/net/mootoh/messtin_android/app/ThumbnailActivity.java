@@ -80,44 +80,9 @@ public class ThumbnailActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thumbnail);
+        final Book book = getIntent().getParcelableExtra("book");
 
-        DriveId parentDriveId = getIntent().getParcelableExtra("parentDriveId");
-
-        Query query = new Query.Builder()
-                .addFilter(Filters.in(SearchableField.PARENTS, parentDriveId))
-                .addFilter(Filters.eq(SearchableField.TITLE, "tm"))
-                .build();
-
-        final ThumbnailActivity self = this;
-        Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-            @Override
-            public void onResult(DriveApi.MetadataBufferResult result) {
-                if (!result.getStatus().isSuccess()) {
-                    Log.d("@@@", "failed in retrieving thumbnails");
-                    return;
-                }
-                MetadataBuffer mb = result.getMetadataBuffer();
-                Metadata md = mb.get(0);
-
-                Query query2 = new Query.Builder()
-                        .addFilter(Filters.in(SearchableField.PARENTS, md.getDriveId()))
-                        .build();
-
-                Drive.DriveApi.query(GDriveHelper.getInstance().getClient(), query2).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-                    @Override
-                    public void onResult(DriveApi.MetadataBufferResult result2) {
-                        for (Metadata md : result2.getMetadataBuffer()) {
-                            Log.d(TAG, "thumbnail: " + md.getTitle());
-                            // FIXME
-//                            RetrieveDriveFileContentsAsyncTask task = new RetrieveDriveFileContentsAsyncTask(self, GDriveHelper.getInstance().getClient());
-//                            task.execute(md);
-                        }
-                    }
-                });
-            }
-        });
-
-        ThumbnailImageAdapter imageAdapter = new ThumbnailImageAdapter(this);
+        final ThumbnailImageAdapter imageAdapter = new ThumbnailImageAdapter(this);
         GridView gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(imageAdapter);
 
@@ -130,8 +95,24 @@ public class ThumbnailActivity extends Activity {
                 finish();
             }
         });
-    }
 
+        for (int i=1; i<book.pageCount; i++) {
+            final int page = i;
+            BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
+            storage.retrieveThumbnail(book, page, new OnImageRetrieved() {
+                @Override
+                public void onRetrieved(Error error, final Bitmap bitmap) {
+                    bitmaps.put(page, bitmap);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            });
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -151,13 +132,4 @@ public class ThumbnailActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-        // FIXME
-//        String title = result.md.getTitle();
-//        int page = Integer.parseInt(title.substring(0, 3));
-//        Log.d(TAG, "page number: " + page);
-//        bitmaps.put(new Integer(page), result.getBitamp());
-//
-//        GridView gridView = (GridView) findViewById(R.id.gridview);
-//        ((BaseAdapter)gridView.getAdapter()).notifyDataSetChanged();
 }
