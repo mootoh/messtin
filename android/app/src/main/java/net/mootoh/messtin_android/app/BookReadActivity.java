@@ -27,21 +27,14 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
-import com.google.android.gms.drive.query.Filters;
-import com.google.android.gms.drive.query.Query;
-import com.google.android.gms.drive.query.SearchableField;
 import com.ortiz.touch.TouchImageView;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import net.mootoh.messtin_android.app.google.GDriveHelper;
-import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTask;
-import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTaskDelegate;
-import net.mootoh.messtin_android.app.google.RetrieveDriveFileContentsAsyncTaskResult;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by mootoh on 5/11/14.
@@ -75,9 +68,8 @@ public class BookReadActivity extends Activity {
 
         updateTitle();
 
-/*
         ParseQuery parseQ = ParseQuery.getQuery("Book");
-        parseQ.getInBackground(parseObjectId, new GetCallback() {
+        parseQ.getInBackground(book.getObjectId(), new GetCallback() {
             @Override
             public void done(ParseObject po, ParseException e) {
                 if (e != null) {
@@ -87,7 +79,6 @@ public class BookReadActivity extends Activity {
                 parseObject = po;
             }
         });
-*/
 
         final TouchImageView iv = (TouchImageView) findViewById(R.id.imageView);
         iv.setMaxZoom(5);
@@ -179,25 +170,6 @@ public class BookReadActivity extends Activity {
         SharedPreferences.Editor edit = pref.edit();
         edit.putInt(book.getObjectId() + ":page", currentPage);
         edit.commit();
-    }
-
-    public void setup(DriveId driveId) {
-//        retrieveDriveIds(null);
-        retrieveFolder(driveId);
-    }
-
-    private void retrieveFolder(DriveId driveId) {
-        DriveFolder folder = Drive.DriveApi.getFolder(GDriveHelper.getInstance().getClient(), driveId);
-        folder.listChildren(GDriveHelper.getInstance().getClient()).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-            @Override
-            public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
-                MetadataBuffer mb = metadataBufferResult.getMetadataBuffer();
-                for (Metadata md : mb) {
-                    Log.d(TAG, "title: " + md.getTitle());
-                }
-                mb.close();
-            }
-        });
     }
 
     private boolean checkPageBound(int page) {
