@@ -190,11 +190,11 @@ public class BookReadActivity extends Activity {
         storage.retrieve(book, page, new OnImageRetrieved() {
             @Override
             public void onRetrieved(Error error, final Bitmap bitmap) {
-                setProgressBarIndeterminateVisibility(false);
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        setProgressBarIndeterminateVisibility(false);
+
                         if (! toShow) return;
                         ImageView iv = (ImageView) findViewById(R.id.imageView);
                         iv.setImageBitmap(bitmap);
