@@ -2,18 +2,21 @@ package net.mootoh.messtin_android.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +34,38 @@ import java.util.Map;
 public class BooklistActivity extends Activity {
     final private static String TAG = "BooklistActivity";
 
-    SimpleAdapter adapter;
+    BaseAdapter adapter = new BaseAdapter() {
+        @Override
+        public int getCount() {
+            return items.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return items.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.bookinfo, null);
+            }
+
+            TextView titleView = (TextView)convertView.findViewById(R.id.title);
+            ImageView imageView = (ImageView)convertView.findViewById(R.id.image);
+
+            titleView.setText((String)items.get(position).get("title"));
+            imageView.setImageBitmap((Bitmap) items.get(position).get("image"));
+            return convertView;
+        }
+    };
+
     List <Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 
     @Override
@@ -39,29 +73,9 @@ public class BooklistActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_booklist);
-        setupAdapter();
         setupGridView();
         setupParse();
         fetchBooksFromParseRemotely();
-    }
-
-    private void setupAdapter() {
-        adapter = new SimpleAdapter(this, items, R.layout.bookinfo, new String[] { "image", "title"}, new int[] { R.id.image, R.id.title});
-        SimpleAdapter.ViewBinder viewBinder = new SimpleAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Object data, String textRep) {
-                if (view.getId() == R.id.title) {
-                    ((TextView)view).setText((String) data);
-                    return true;
-                } else if (view.getId() == R.id.image) {
-                    if (data != null)
-                        ((ImageView)view).setImageBitmap((Bitmap)data);
-                    return true;
-                }
-                return false;
-            }
-        };
-        adapter.setViewBinder(viewBinder);
     }
 
     private void fetchBooksFromParseLocally() {
