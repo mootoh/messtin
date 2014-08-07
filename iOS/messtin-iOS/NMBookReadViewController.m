@@ -10,8 +10,6 @@
 #import "NMBook.h"
 #import "NMBookThumbnailViewController.h"
 #import "NMAppDelegate.h"
-#import "NMGoogleDrive.h"
-#import "GTLDrive.h"
 #import <Parse/Parse.h>
 
 @interface NMBookReadViewController ()
@@ -30,8 +28,7 @@
     NSLog(@"current page = %d", self.currentPage);
     
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
-
+/*
     UIImage *cachedImage = [self cachedImage:self.currentPage];
     if (cachedImage) {
         self.pageImageView.image = cachedImage;
@@ -50,14 +47,13 @@
                                                object:NULL];
 
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
-
+*/
 }
 
 
 - (void) fetchPageMetaInfos:(void(^)(NSError *))callback {
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
-
+/*
     GTLQueryDrive *query = [GTLQueryDrive queryForFilesList];
     query.maxResults = 1000;
     query.q = [NSString stringWithFormat:@"title != 'tm' and title != '%@' and '%@' in parents", k_COVER_IMAGE_FILENAME, self.book.gd_id];
@@ -78,6 +74,7 @@
         
         callback(nil);
     }];
+ */
 }
 
 - (void)applicationWillResign
@@ -134,7 +131,7 @@
     [self.activityIndicator startAnimating];
 
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
+/*
     GTLDriveFile *driveFile = self.pages[self.currentPage];
     [app.googleDrive fetch:driveFile.downloadUrl callback:^(NSData *data, NSError *error) {
         if (toShow) {
@@ -159,6 +156,7 @@
             NSLog(@"failed in saving the downloaded page image: %d", self.currentPage);
         }
     }];
+ */
 }
 
 - (void)pageTapped:(UIGestureRecognizer *)recognizer
