@@ -191,6 +191,12 @@ public class BooklistActivity extends Activity {
             startActivity(intent);
             return true;
         }
+        if (id == R.id.action_refresh) {
+            items.clear();
+            adapter.notifyDataSetChanged();
+            fetchBooksFromParseRemotely();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

@@ -9,4 +9,5 @@
     <string name="title_activity_thumbnail">Thumbnails</string>
     <string name="action_show_thumbnails">Thumbnail</string>
     <string name="action_pin_this_book">Pin This Book</string>
+    <string name="action_refresh">Refresh</string>
 </resources>
