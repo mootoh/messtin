@@ -63,7 +63,6 @@ static NSString *kCellID = @"bookCellId";
         }
         
         for (PFObject *obj in objects) {
-            NSLog(@"book : %@", obj.objectId);
             NMBook *book = [[NMBook alloc] initWithParseObject:obj];
             [self.books addObject:book];
         }
@@ -86,29 +85,15 @@ static NSString *kCellID = @"bookCellId";
                   clientKey:secret[@"CLIENT_KEY"]];
 }
 
-- (void) retrieveCoverImageFromGDrive:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
+- (void) retrieveCoverImage:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
 {
-    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-
-    NSString *coverImageId = book.cover_img_gd_id;
-    /*
-    GTLQueryDrive *query = [GTLQueryDrive queryForFilesGetWithFileId:coverImageId];
-    query.maxResults = 1;
-    [app.googleDrive.driveService executeQuery:query completionHandler:^(GTLServiceTicket *ticket,
-                                                                         GTLDriveFile *file,
-                                                                         NSError *error) {
-        if (error) {
-            NSLog(@"failed in retrieving a cover image: %@", error);
-            callback(error, nil);
-            return;
-        }
-        [app.googleDrive fetch:file.downloadUrl callback:^(NSData *data, NSError *error2) {
-            UIImage *img = [UIImage imageWithData:data];
-            callback(error2, img);
-            return;
-        }];
+    NMAppDelegate *app = [UIApplication sharedApplication].delegate;
+    NSString *str = [NSString stringWithFormat:@"%@/%@/cover.jpg", app.storageServerURLBase, book.parseObject.objectId];
+    NSURL *url = [NSURL URLWithString:str];
+    [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:url] queue:[NSOperationQueue currentQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        UIImage *image = [UIImage imageWithData:data];
+        callback(connectionError, image);
     }];
-     */
 }
 
 - (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section;
@@ -122,7 +107,7 @@ static NSString *kCellID = @"bookCellId";
 
     NMBook *book = [self.books objectAtIndex:indexPath.row];
     NSString *dir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    dir = [dir stringByAppendingPathComponent:book.gd_id];
+    dir = [dir stringByAppendingPathComponent:book.parseObject.objectId];
 
     NSFileManager *fileManager= [NSFileManager defaultManager];
     if(![fileManager fileExistsAtPath:dir])
@@ -137,7 +122,7 @@ static NSString *kCellID = @"bookCellId";
         return cell;
     }
 
-    [self retrieveCoverImageFromGDrive:book callback:^(NSError *error, UIImage *image) {
+    [self retrieveCoverImage:book callback:^(NSError *error, UIImage *image) {
         if (error) {
             NSLog(@"failed in fetching cover image: %@", error);
             return;

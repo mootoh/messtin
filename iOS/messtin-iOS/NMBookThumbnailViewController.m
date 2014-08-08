@@ -10,6 +10,7 @@
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
 #import "NMAppDelegate.h"
+#import <Parse/Parse.h>
 
 static NSString *kCellID = @"bookThumbnailCellId";
 
@@ -92,7 +93,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
     
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:self.book.gd_id];
+    path = [path stringByAppendingPathComponent:self.book.parseObject.objectId];
     path = [path stringByAppendingPathComponent:@"tm"];
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
     

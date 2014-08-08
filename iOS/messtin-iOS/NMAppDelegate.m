@@ -12,7 +12,17 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"parse_secret" ofType:@"plist"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if (![fileManager fileExistsAtPath:path]) {
+        NSLog(@"no such file: %@", path);
+        return YES;
+    }
+    
+    NSDictionary *secret = [NSDictionary dictionaryWithContentsOfFile:path];
+    _storageServerURLBase = secret[@"STORAGE_SERVER_URL"];
+
     return YES;
 }
 							

@@ -24,35 +24,29 @@
 
     self.title = self.book.title;
 
-    self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.gd_id]];
+    self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.parseObject.objectId]];
     NSLog(@"current page = %d", self.currentPage);
     
-    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-/*
     UIImage *cachedImage = [self cachedImage:self.currentPage];
     if (cachedImage) {
         self.pageImageView.image = cachedImage;
     }
 
-    [self fetchPageMetaInfos:^(NSError *error) {
-        UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-        [self.pageImageView addGestureRecognizer:tgr];
+    UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
+    [self.pageImageView addGestureRecognizer:tgr];
         
-        [self downloadPage:self.currentPage show:YES];
-    }];
-
+    [self downloadPage:self.currentPage show:YES];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResign)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:NULL];
 
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
-*/
 }
 
 
 - (void) fetchPageMetaInfos:(void(^)(NSError *))callback {
-    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
 /*
     GTLQueryDrive *query = [GTLQueryDrive queryForFilesList];
     query.maxResults = 1000;
@@ -99,7 +93,7 @@
     NSFileManager *fileManager= [NSFileManager defaultManager];
     
     NSString *cacheRoot = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.gd_id]];
+    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.parseObject.objectId]];
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d.jpg", page]];
     
     if ([fileManager fileExistsAtPath:path]) {
@@ -116,7 +110,7 @@
     NSFileManager *fileManager= [NSFileManager defaultManager];
 
     NSString *cacheRoot = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.gd_id]];
+    NSString *path = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.parseObject.objectId]];
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d.jpg", page]];
 
     if ([fileManager fileExistsAtPath:path]) {
@@ -131,18 +125,17 @@
     [self.activityIndicator startAnimating];
 
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-/*
-    GTLDriveFile *driveFile = self.pages[self.currentPage];
-    [app.googleDrive fetch:driveFile.downloadUrl callback:^(NSData *data, NSError *error) {
+    
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@/%03d.jpg", app.storageServerURLBase, self.book.parseObject.objectId, page]];
+    [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:url] queue:[NSOperationQueue currentQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if (toShow) {
             self.pageImageView.image = [UIImage imageWithData:data];
             self.title = [self.book.title stringByAppendingFormat:@" %d/%d", page, self.book.pages];
         }
-
         self.activityIndicator.hidden = YES;
         [self.activityIndicator stopAnimating];
-
-        NSString *bookDir = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.gd_id]];
+        
+        NSString *bookDir = [cacheRoot stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", self.book.parseObject.objectId]];
         if (! [fileManager fileExistsAtPath:bookDir]) {
             NSError *error = nil;
             [fileManager createDirectoryAtPath:bookDir withIntermediateDirectories:YES attributes:nil error:&error];
@@ -151,12 +144,11 @@
                 return;
             }
         }
-
+        
         if (! [fileManager createFileAtPath:path contents:data attributes:nil]) {
             NSLog(@"failed in saving the downloaded page image: %d", self.currentPage);
         }
     }];
- */
 }
 
 - (void)pageTapped:(UIGestureRecognizer *)recognizer
@@ -199,7 +191,7 @@
 
 - (void)saveCurrentPage
 {
-    [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.gd_id]];
+    [[NSUserDefaults standardUserDefaults] setInteger:self.currentPage forKey:[NSString stringWithFormat:@"%@/page", self.book.parseObject.objectId]];
 }
 
 #pragma mark UIScrollViewDelegate

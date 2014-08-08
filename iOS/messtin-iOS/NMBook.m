@@ -18,9 +18,7 @@
         return nil;
     
     self.title = dict[@"title"];
-    self.gd_id = dict[@"gd_id"];
     self.pages = [dict[@"pages"] integerValue];
-    self.cover_img_gd_id = dict[@"cover_img_gd_id"];
 
     return self;
 }
@@ -31,9 +29,7 @@
         return nil;
 
     self.title = object[@"title"];
-    self.gd_id = object[@"gd_id"];
     self.pages = [object[@"pages"] integerValue];
-    self.cover_img_gd_id = object[@"cover_img_gd_id"];
     self.parseObject = object;
 
     return self;
