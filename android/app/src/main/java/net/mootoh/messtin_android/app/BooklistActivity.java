@@ -2,11 +2,14 @@ package net.mootoh.messtin_android.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,6 +79,22 @@ public class BooklistActivity extends Activity {
         setupGridView();
         setupParse();
         fetchBooksFromParseRemotely();
+
+        BroadcastReceiver cacheReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getStringExtra("error") != null) {
+                    Log.e(TAG, "failed in fetching : " + intent.getStringExtra("error"));
+                    return;
+                }
+
+                items.get(intent.getIntExtra("index", 0)).put("image", intent.getParcelableExtra("bitmap"));
+                adapter.notifyDataSetChanged();
+            }
+        };
+
+        IntentFilter ifilter = new IntentFilter(CacheService.ACTION_FETCH_RESULT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(cacheReceiver, ifilter);
     }
 
     private void fetchBooksFromParseLocally() {
@@ -99,6 +118,8 @@ public class BooklistActivity extends Activity {
     }
 
     private void fetchBooksFromParseRemotely() {
+        final Activity self = this;
+
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Book");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
@@ -107,6 +128,7 @@ public class BooklistActivity extends Activity {
                     showError("failed in retrieving books from parse: " + e.getMessage());
                     return;
                 }
+                int i=0;
                 for (ParseObject obj : parseObjects) {
                     final String objId = obj.getObjectId();
                     final String title = (String)obj.get("title");
@@ -117,7 +139,7 @@ public class BooklistActivity extends Activity {
                     item.put("title", title);
                     item.put("book", book);
                     items.add(item);
-
+/*
                     BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
                     storage.retrieveCover(book, new OnImageRetrieved() {
                         @Override
@@ -135,7 +157,15 @@ public class BooklistActivity extends Activity {
                             });
                         }
                     });
+ */
+                    Intent intent = new Intent(self, CacheService.class);
+                    intent.setAction(CacheService.ACTION_FETCH);
+                    intent.putExtra("book", book);
+                    intent.putExtra("index", i);
+                    startService(intent);
+                    i++;
                 }
+
                 adapter.notifyDataSetChanged();
             }
         });

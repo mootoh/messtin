@@ -4,7 +4,4 @@
    <FileRef
       location = "group:messtin-iOS.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:google-api-objectivec-client/Source/GTL.xcodeproj">
-   </FileRef>
 </Workspace>

@@ -13,9 +13,7 @@
 @interface NMBook : NSObject
 
 @property NSString *title;
-@property NSString *gd_id;
 @property NSInteger pages;
-@property NSString *cover_img_gd_id;
 @property NSDate *lastOpened;
 @property (nonatomic, strong) PFObject *parseObject;
 

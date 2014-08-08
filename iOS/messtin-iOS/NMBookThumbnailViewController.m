@@ -10,8 +10,7 @@
 #import "NMBookReadViewController.h"
 #import "NMBook.h"
 #import "NMAppDelegate.h"
-#import "GTLDrive.h"
-#import "NMGoogleDrive.h"
+#import <Parse/Parse.h>
 
 static NSString *kCellID = @"bookThumbnailCellId";
 
@@ -24,8 +23,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
 
 - (void) downloadThumbnails {
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
-    
+/*
     GTLQueryDrive *query = [GTLQueryDrive queryForFilesList];
     query.maxResults = 1000;
     query.q = [NSString stringWithFormat:@"title = 'tm' and '%@' in parents", self.book.gd_id];
@@ -57,11 +55,11 @@ static NSString *kCellID = @"bookThumbnailCellId";
             }
         }];
     }];
+ */
 }
-
+/*
 - (void) downloadThumbnail:(GTLDriveFile *)file {
     NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
 
     [app.googleDrive fetch:file.downloadUrl callback:^(NSData *data, NSError *error) {
         NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
@@ -83,8 +81,8 @@ static NSString *kCellID = @"bookThumbnailCellId";
         
         [self.collectionView reloadData]; // FIXME: only reload the downloaded item.
     }];
-    
 }
+*/
 
 - (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section; {
     return self.book.pages;
@@ -95,7 +93,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
     UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
     
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-    path = [path stringByAppendingPathComponent:self.book.gd_id];
+    path = [path stringByAppendingPathComponent:self.book.parseObject.objectId];
     path = [path stringByAppendingPathComponent:@"tm"];
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:path];
     
@@ -106,7 +104,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
     
     if (! self.thumbnailInfos)
         return cell;
-    
+    /*
     NSString *fileName = ((GTLDriveFile *)self.thumbnailInfos[indexPath.row]).title;
 
     if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:fileName]]) {
@@ -114,7 +112,7 @@ static NSString *kCellID = @"bookThumbnailCellId";
         iv.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[documentsDirectoryPath URLByAppendingPathComponent:fileName]]];
         return cell;
     }
-
+*/
     return cell;
 }
 

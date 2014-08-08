@@ -11,8 +11,6 @@
 #import "NMBookInfoViewController.h"
 #import "NMBook.h"
 #import "NMAppDelegate.h"
-#import "NMGoogleDrive.h"
-#import "GTLDrive.h"
 #import <Parse/Parse.h>
 
 static NSString *kCellID = @"bookCellId";
@@ -32,15 +30,6 @@ static NSString *kCellID = @"bookCellId";
     self.title = @"Bookshelf";
     self.books = [NSMutableArray array];
     [self setupParse];
-
-    // authenticate with Google Drive
-    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    if (![app.googleDrive isAuthorized]) {
-        // Not yet authorized, request authorization and push the login UI onto the navigation stack.
-        [self presentViewController:(UIViewController *)[app.googleDrive createAuthController:@selector(viewController:finishedWithAuth:error:)] animated:YES completion:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAuthorized) name:k_GDRIVE_AUTH_FINISHED object:nil];
-        return;
-    }
 
     [self.collectionView addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressOnCell:)]];
     [self fetchBooks];
@@ -65,11 +54,6 @@ static NSString *kCellID = @"bookCellId";
     self.popoverForBook = pc;
 }
 
-- (void) onAuthorized {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:k_GDRIVE_AUTH_FINISHED object:nil];
-    [self fetchBooks];
-}
-
 - (void) fetchBooks {
     PFQuery *query = [PFQuery queryWithClassName:@"Book"];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
@@ -79,7 +63,6 @@ static NSString *kCellID = @"bookCellId";
         }
         
         for (PFObject *obj in objects) {
-            NSLog(@"book : %@", obj.objectId);
             NMBook *book = [[NMBook alloc] initWithParseObject:obj];
             [self.books addObject:book];
         }
@@ -102,27 +85,14 @@ static NSString *kCellID = @"bookCellId";
                   clientKey:secret[@"CLIENT_KEY"]];
 }
 
-- (void) retrieveCoverImageFromGDrive:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
+- (void) retrieveCoverImage:(NMBook *)book callback:(void(^)(NSError *, UIImage *image))callback
 {
-    NMAppDelegate *app = (NMAppDelegate *)[UIApplication sharedApplication].delegate;
-    NSAssert([app.googleDrive isAuthorized], @"should be authorized");
-
-    NSString *coverImageId = book.cover_img_gd_id;
-    GTLQueryDrive *query = [GTLQueryDrive queryForFilesGetWithFileId:coverImageId];
-    query.maxResults = 1;
-    [app.googleDrive.driveService executeQuery:query completionHandler:^(GTLServiceTicket *ticket,
-                                                                         GTLDriveFile *file,
-                                                                         NSError *error) {
-        if (error) {
-            NSLog(@"failed in retrieving a cover image: %@", error);
-            callback(error, nil);
-            return;
-        }
-        [app.googleDrive fetch:file.downloadUrl callback:^(NSData *data, NSError *error2) {
-            UIImage *img = [UIImage imageWithData:data];
-            callback(error2, img);
-            return;
-        }];
+    NMAppDelegate *app = [UIApplication sharedApplication].delegate;
+    NSString *str = [NSString stringWithFormat:@"%@/%@/cover.jpg", app.storageServerURLBase, book.parseObject.objectId];
+    NSURL *url = [NSURL URLWithString:str];
+    [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:url] queue:[NSOperationQueue currentQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        UIImage *image = [UIImage imageWithData:data];
+        callback(connectionError, image);
     }];
 }
 
@@ -137,7 +107,7 @@ static NSString *kCellID = @"bookCellId";
 
     NMBook *book = [self.books objectAtIndex:indexPath.row];
     NSString *dir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    dir = [dir stringByAppendingPathComponent:book.gd_id];
+    dir = [dir stringByAppendingPathComponent:book.parseObject.objectId];
 
     NSFileManager *fileManager= [NSFileManager defaultManager];
     if(![fileManager fileExistsAtPath:dir])
@@ -152,7 +122,7 @@ static NSString *kCellID = @"bookCellId";
         return cell;
     }
 
-    [self retrieveCoverImageFromGDrive:book callback:^(NSError *error, UIImage *image) {
+    [self retrieveCoverImage:book callback:^(NSError *error, UIImage *image) {
         if (error) {
             NSLog(@"failed in fetching cover image: %@", error);
             return;
