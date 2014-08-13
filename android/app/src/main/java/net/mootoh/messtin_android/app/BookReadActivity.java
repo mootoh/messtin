@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,21 +24,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
 import com.ortiz.touch.TouchImageView;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
-
-import net.mootoh.messtin_android.app.google.GDriveHelper;
 
 /**
  * Created by mootoh on 5/11/14.
@@ -110,6 +105,30 @@ public class BookReadActivity extends Activity {
 
         retrievePage(currentPage, true);
         hideSystemUI();
+
+        BroadcastReceiver cacheReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getStringExtra("error") != null) {
+                    Log.e(TAG, "failed in fetching : " + intent.getStringExtra("error"));
+                    return;
+                }
+
+                setProgressBarIndeterminateVisibility(false);
+
+                boolean toShow = intent.getBooleanExtra("toShow", false);
+                if (! toShow) return;
+
+                ImageView iv = (ImageView) findViewById(R.id.imageView);
+                Bitmap bitmap = intent.getParcelableExtra("bitmap");
+                iv.setImageBitmap(bitmap);
+                updateTitle();
+                iv.invalidate();
+            }
+        };
+        IntentFilter ifilter = new IntentFilter(CacheService.ACTION_FETCH_RESULT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(cacheReceiver, ifilter);
+
     }
 
     private void updateTitle() {
@@ -186,24 +205,16 @@ public class BookReadActivity extends Activity {
 
         setProgressBarIndeterminateVisibility(true);
 
-        BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
-        storage.retrieve(book, page, new OnImageRetrieved() {
-            @Override
-            public void onRetrieved(Error error, final Bitmap bitmap) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setProgressBarIndeterminateVisibility(false);
+        Intent intent = new Intent(this, CacheService.class);
+        intent.setAction(CacheService.ACTION_FETCH);
+        intent.putExtra("book", book);
 
-                        if (! toShow) return;
-                        ImageView iv = (ImageView) findViewById(R.id.imageView);
-                        iv.setImageBitmap(bitmap);
-                        updateTitle();
-                        iv.invalidate();
-                    }
-                });
-            }
-        });
+        String name = "%03d";
+        name = String.format(name, page);
+        intent.putExtra("path", name);
+
+        intent.putExtra("toShow", toShow);
+        startService(intent);
     }
 
     public void nextPage() {

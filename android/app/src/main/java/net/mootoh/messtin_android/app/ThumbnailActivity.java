@@ -3,8 +3,8 @@ package net.mootoh.messtin_android.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,18 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
-import com.google.android.gms.drive.query.Filters;
-import com.google.android.gms.drive.query.Query;
-import com.google.android.gms.drive.query.SearchableField;
-
-import net.mootoh.messtin_android.app.google.GDriveHelper;
-
+import java.io.InputStream;
 import java.util.HashMap;
 
 class ThumbnailImageAdapter extends BaseAdapter {
@@ -99,9 +88,11 @@ public class ThumbnailActivity extends Activity {
         for (int i=1; i<book.pageCount; i++) {
             final int page = i;
             BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
-            storage.retrieveThumbnail(book, page, new OnImageRetrieved() {
+            String path = "tm/" + storage.filenameForPage(page);
+            storage.retrieve(book, path, new OnImageRetrieved() {
                 @Override
-                public void onRetrieved(Error error, final Bitmap bitmap) {
+                public void onRetrieved(Error error, InputStream is) {
+                    Bitmap bitmap = BitmapFactory.decodeStream(is);
                     bitmaps.put(page, bitmap);
                     runOnUiThread(new Runnable() {
                         @Override

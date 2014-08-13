@@ -1,11 +1,8 @@
 package net.mootoh.messtin_android.app;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.DriveId;
 import com.parse.ParseObject;
 
 /**

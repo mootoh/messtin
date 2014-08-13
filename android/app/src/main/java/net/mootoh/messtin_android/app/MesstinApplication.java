@@ -4,8 +4,6 @@ import android.app.Application;
 
 import com.parse.Parse;
 
-import java.net.MalformedURLException;
-
 /**
  * Created by mootoh on 6/16/14.
  */
@@ -19,7 +17,7 @@ public class MesstinApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        storage = new HttpBookStorage(getString(R.string.storage_server_url), this);
+        storage = new HttpBookStorage(getString(R.string.storage_server_url));
     }
 
     public BookStorage getBookStorage() {

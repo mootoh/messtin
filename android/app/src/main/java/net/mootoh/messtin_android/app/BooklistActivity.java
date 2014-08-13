@@ -139,29 +139,12 @@ public class BooklistActivity extends Activity {
                     item.put("title", title);
                     item.put("book", book);
                     items.add(item);
-/*
-                    BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
-                    storage.retrieveCover(book, new OnImageRetrieved() {
-                        @Override
-                        public void onRetrieved(Error error, Bitmap bitmap) {
-                            if (error != null) {
-                                Log.e(TAG, "failed in retrieving cover:" + error.getMessage());
-                                return;
-                            }
-                            item.put("image", bitmap);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-                        }
-                    });
- */
+
                     Intent intent = new Intent(self, CacheService.class);
                     intent.setAction(CacheService.ACTION_FETCH);
                     intent.putExtra("book", book);
                     intent.putExtra("index", i);
+                    intent.putExtra("path", "cover");
                     startService(intent);
                     i++;
                 }
@@ -212,9 +195,6 @@ public class BooklistActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, OverallSettingsActivity.class);
