@@ -162,6 +162,7 @@ public class BooklistActivity extends Activity {
                     intent.setAction(CacheService.ACTION_FETCH);
                     intent.putExtra("book", book);
                     intent.putExtra("index", i);
+                    intent.putExtra("name", "cover");
                     startService(intent);
                     i++;
                 }

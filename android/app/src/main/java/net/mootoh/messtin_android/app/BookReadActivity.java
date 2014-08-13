@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -110,6 +114,31 @@ public class BookReadActivity extends Activity {
 
         retrievePage(currentPage, true);
         hideSystemUI();
+
+        BroadcastReceiver cacheReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getStringExtra("error") != null) {
+                    Log.e(TAG, "failed in fetching : " + intent.getStringExtra("error"));
+                    return;
+                }
+/*
+                items.get(intent.getIntExtra("index", 0)).put("image", intent.getParcelableExtra("bitmap"));
+                adapter.notifyDataSetChanged();
+                */
+                setProgressBarIndeterminateVisibility(false);
+
+//                if (! toShow) return;
+                ImageView iv = (ImageView) findViewById(R.id.imageView);
+                Bitmap bitmap = intent.getParcelableExtra("bitmap");
+                iv.setImageBitmap(bitmap);
+                updateTitle();
+                iv.invalidate();
+            }
+        };
+        IntentFilter ifilter = new IntentFilter(CacheService.ACTION_FETCH_RESULT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(cacheReceiver, ifilter);
+
     }
 
     private void updateTitle() {
@@ -186,6 +215,17 @@ public class BookReadActivity extends Activity {
 
         setProgressBarIndeterminateVisibility(true);
 
+        Intent intent = new Intent(this, CacheService.class);
+        intent.setAction(CacheService.ACTION_FETCH);
+        intent.putExtra("book", book);
+
+        String name = "%03d";
+        name = String.format(name, page);
+        intent.putExtra("name", name);
+        intent.putExtra("toShow", toShow);
+        startService(intent);
+
+        /*
         BookStorage storage = ((MesstinApplication)getApplication()).getBookStorage();
         storage.retrieve(book, page, new OnImageRetrieved() {
             @Override
@@ -204,6 +244,7 @@ public class BookReadActivity extends Activity {
                 });
             }
         });
+        */
     }
 
     public void nextPage() {
