@@ -77,7 +77,6 @@ public class BooklistActivity extends Activity {
 
         setContentView(R.layout.activity_booklist);
         setupGridView();
-        setupParse();
         fetchBooksFromParseRemotely();
 
         BroadcastReceiver cacheReceiver = new BroadcastReceiver() {
@@ -180,10 +179,6 @@ public class BooklistActivity extends Activity {
                 return true;
             }
         });
-    }
-
-    private void setupParse() {
-        Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_key));
     }
 
     @Override

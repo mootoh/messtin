@@ -18,6 +18,8 @@ public class MesstinApplication extends Application {
     public void onCreate() {
         super.onCreate();
         storage = new HttpBookStorage(getString(R.string.storage_server_url));
+
+        Parse.initialize(this, getString(R.string.parse_app_id), getString(R.string.parse_client_key));
     }
 
     public BookStorage getBookStorage() {
