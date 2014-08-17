@@ -6,7 +6,7 @@ Android/iOS app for reading scanned books.
 Setup
 -----
 
-- `brew install ghoastscript jq`
+- `brew install ghostscript jq`
 - Setup an http server which hosts book image data
 - Create a [parse.com](http://parse.com) application
 - Edit script/secret.json to have parameters below
