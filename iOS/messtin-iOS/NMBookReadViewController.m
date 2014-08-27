@@ -28,6 +28,8 @@
     if (self.currentPage == 0) self.currentPage = 1;
     NSLog(@"current page = %d", self.currentPage);
     
+    self.pageImageView.contentMode = UIViewContentModeScaleAspectFit;
+    
     UIImage *cachedImage = [self cachedImage:self.currentPage];
     if (cachedImage) {
         self.pageImageView.image = cachedImage;
