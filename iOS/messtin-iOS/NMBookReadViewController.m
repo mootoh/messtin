@@ -25,6 +25,7 @@
     self.title = self.book.title;
 
     self.currentPage = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"%@/page", self.book.parseObject.objectId]];
+    if (self.currentPage == 0) self.currentPage = 1;
     NSLog(@"current page = %d", self.currentPage);
     
     UIImage *cachedImage = [self cachedImage:self.currentPage];
@@ -104,7 +105,7 @@
 
 - (void)downloadPage:(NSInteger)page show:(BOOL)toShow
 {
-    if (page < 0 || page >= self.book.pages)
+    if (page <= 0 || page >= self.book.pages)
         return;
 
     NSFileManager *fileManager= [NSFileManager defaultManager];
